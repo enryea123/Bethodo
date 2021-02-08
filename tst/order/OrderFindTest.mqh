@@ -28,7 +28,7 @@ void OrderFindTest::getOrdersListTest() {
     double previouslySelectedOpenPrice = 0;
     if (OrderSelect(randomOrderPos, SELECT_BY_POS, MODE_HISTORY)) {
         previouslySelectedOpenPrice = OrderOpenPrice();
-    } else {
+    } else if (!IS_DEBUG) {
         Print("getOrdersListTest: could not select order with position ", randomOrderPos);
     }
 

@@ -3,7 +3,7 @@
 #property strict
 
 #property description "Enrico Albano's automated bot for Bethodo"
-#property version "210.207"
+#property version "210.208"
 
 #include "src/drawer/Drawer.mqh"
 #include "src/market/Market.mqh"
@@ -48,6 +48,15 @@
  *      Questo è il problema degli ordini nel passato. In teoria si possono vedere tutte le 9 candele passate
  *      dalle 14 alle 23, e mettere ordine se il setup c'è (ed è valido) su una qualsiasi di quelle.
  *
+ *  - La soluzione corrente al bug dei setup multipli è molto approssimativa. Non trova l'ordine migliore ma
+ *      quello più in alto/basso possibile, che dovrebbe essere in teoria più vicino. Un ordine successivo
+ *      con setup migliori (?) non viene considerato se ce n'è già un altro.
+ *
+ *  - I livelli orizzontali devono avere un margine di tolleranza di 4pip, altrimenti vengono cancellati
+ *      quando vengono superati di poco e bisognerebbe mettere un ordine stop (o limit in ritardo).
+ *      Messo, ma controllare dettagli piu avanti. Inoltre ho reso le ultime `2 * MIN_EXTREME` candele
+ *      invisibili sia a canali che livelli orizzontali.
+ *
  *  - La durata degli ordini dev'essere variabile e dipende dal setup, altrimenti scadono tutti alle 16
  *      quelli non entrati, e non vengono rimessi fino alle 23. Forse bisognerebbe considerare di lasciare sempre
  *      aperto il mercato, a parte che nella spread hour. Vedere meglio il lookback, qui non serve come pattern
@@ -69,9 +78,17 @@
  *      Si possono anche mettere scaling in della posizione (si perderebbe il commento), o scaling out.
  *
  *  - Spread con memoria di 5-10 minuti: se c'è stato spread alto negli ultimi X minuti, il mercato rimane chiuso.
+ *      A parte quello il mercato deve rimanere chiuso davvero dalle 14 alle 23? Se non ci fosse spread quali
+ *      sarebbero i reali valori? Verificare se una spreadHour custom basta o serve proprio chiudere.
  *
  *  - Mezzo bug con isGoodTrendLineFromName che prende indici troppo piccoli. O forse va quasi bene perché
  *      cosi mette ordini a canali 2+2, solo che lo fa in leggero ritardo (dovrebbero essere stop a quel punto).
+ *      C'è inoltre il problema che il livello orizzontale li è quello del massimo che ha appena creato il canale.
+ *      Per risolvere quest'ultimo bug per ora ho messo `2 * extremesMinDistance + 2`. Bisogna confermare se
+ *      questo è il valore ottimale o si puo fare di meglio. Magari rendere invisibili i vecchi livelli orizzontali
+ *      alle ultime 10 candele, in questo modo non vengono cancellati da un recente spike a mercato chiuso.
+ *
+ *  - Bot lento nell'inizializzazione e disegni. Troppe trendlines? Magari c'entra con gli errori 4066 di iCandle.
  *
  */
 

@@ -13,6 +13,9 @@ class Extreme {
     public:
         void calculateAllExtremes(int & [], Discriminator, int);
         void calculateValidExtremes(int & [], Discriminator, int);
+
+    private:
+        int startCandle(int);
 };
 
 /**
@@ -24,7 +27,7 @@ void Extreme::calculateAllExtremes(int & allExtremes[], Discriminator discrimina
 
     int numberOfExtremes = 0;
 
-    for (int i = extremesMinDistance + 1; i < EXTREMES_MAX_CANDLES; i++) {
+    for (int i = startCandle(extremesMinDistance); i < EXTREMES_MAX_CANDLES; i++) {
         bool isBeatingNeighbours = true;
 
         for (int j = -extremesMinDistance; j < extremesMinDistance + 1; j++) {
@@ -56,15 +59,17 @@ void Extreme::calculateValidExtremes(int & validExtremes[], Discriminator discri
     calculateAllExtremes(allExtremes, discriminator, extremesMinDistance);
 
     int numberOfValidExtremes = 0;
-    int lastFoundValidExtremeIndex = 0;
+    int lastFoundValidExtremeIndex = startCandle(extremesMinDistance);
 
     for (int i = 0; i < ArraySize(allExtremes); i++) {
         bool isValidExtreme = true;
         const int indexI = allExtremes[i];
 
         for (int j = lastFoundValidExtremeIndex; j < indexI; j++) {
-            if ((iExtreme(discriminator, indexI) > iExtreme(discriminator, j) && discriminator == Min) ||
-                (iExtreme(discriminator, indexI) < iExtreme(discriminator, j) && discriminator == Max)) {
+            if ((discriminator == Min && iExtreme(discriminator, indexI) >
+                iExtreme(discriminator, j) + LEVELS_TOLERANCE_PIPS * Pip()) ||
+                (discriminator == Max && iExtreme(discriminator, indexI) <
+                iExtreme(discriminator, j) - LEVELS_TOLERANCE_PIPS * Pip())) {
                 isValidExtreme = false;
                 break;
             }
@@ -78,4 +83,11 @@ void Extreme::calculateValidExtremes(int & validExtremes[], Discriminator discri
     }
 
     ArrayResize(validExtremes, numberOfValidExtremes);
+}
+
+/**
+ * Candle index from which to start calculating extremes.
+ */
+int Extreme::startCandle(int extremesMinDistance) {
+    return 2 * extremesMinDistance;
 }

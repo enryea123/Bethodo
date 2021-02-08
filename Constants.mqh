@@ -42,7 +42,9 @@ const int ALLOWED_MAGIC_NUMBERS [] = {
 
 const int ALLOWED_DEMO_ACCOUNT_NUMBERS [] = {
     2100219063, // Enrico
+    2100220671, // Enrico
     2100220672, // Enrico
+    2100222172, // Enrico
     2100225710, // Eugenio
     2100222405 // Tanya
 };
@@ -80,7 +82,7 @@ const string COMMENT_SEPARATOR = " ";
 const string FILTER_SEPARATOR = "|";
 const string MESSAGE_SEPARATOR = " | ";
 
-const double BASE_TAKEPROFIT_FACTOR = 3;
+const double BASE_TAKEPROFIT_FACTOR = 4;
 
 const int CANDLES_VISIBLE_IN_GRAPH_3X = 465;
 const int CANDLES_VISIBLE_IN_GRAPH_2X = 940;
@@ -108,14 +110,15 @@ const int FIND_DAY_MAX_YEARS_RANGE = 5;
 const int EXTREMES_MAX_CANDLES = 300;
 const int EXTREMES_MIN_DISTANCE = 3;
 const int LEVELS_MIN_DISTANCE = 4;
+const int LEVELS_TOLERANCE_PIPS = 4;
 
 const int INCORRECT_CLOCK_ERROR_SECONDS = 60;
 
 const int SPREAD_PIPS_CLOSE_MARKET = 6;
 
 const int ORDER_SETUP_BUFFER_PIPS = 4;
-const int CHANNEL_LEVEL_SETUP_MAX_DISTANCE_PIPS = 3;
-const int PIPS_DISTANCE_SETUP = 20;
+const int CHANNEL_LEVEL_SETUP_MAX_DISTANCE_PIPS = 4;
+const int SETUP_MAX_DISTANCE_PIPS = 20;
 const double CHANNEL_MIN_SLOPE_VOLATILITY = 0.0003;
 
 const int ORDER_CANDLES_DURATION = 3;
@@ -193,8 +196,7 @@ datetime NEWS_TIMESTAMP = -1;
 datetime SPREAD_TIMESTAMP = -1;
 datetime WRONG_CLOCK_TIMESTAMP = -1;
 
-datetime SELL_SETUP_TIMESTAMP = -1;
-datetime BUY_SETUP_TIMESTAMP = -1;
+datetime SETUP_TIMESTAMP = -1;
 datetime NO_SETUP_TIMESTAMP = -1;
 
 datetime VOLATILITY_TIMESTAMP = -1;

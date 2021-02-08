@@ -22,6 +22,7 @@ class OrderCreate {
         bool areThereBetterOrders(string, int, double, double);
 
         double calculateOrderOpenPriceFromSetups(int);
+        int calculateOrderTypeFromOpenPrice(double);
         double calculateOrderLots(int, string);
         double getPercentRisk();
 
@@ -66,12 +67,7 @@ void OrderCreate::createNewOrder(int index) {
         return;
     }
 
-    // Here the order can be stop or limit depending on openPrice <> GetPrice
-    if (order.openPrice > GetPrice()) {
-        order.type = OP_SELLLIMIT;
-    } else {
-        order.type = OP_BUYLIMIT;
-    }
+    order.type = calculateOrderTypeFromOpenPrice(order.openPrice);
 
     const bool isBuy = order.isBuy();
     const Discriminator discriminator = isBuy ? Max : Min;
@@ -148,7 +144,7 @@ void OrderCreate::sendOrder(Order & order) {
 }
 
 /**
- * Checks if there are any valid setups, and in that case returns the order type.
+ * Checks if there are any valid setups, and in that case returns the order openPrice.
  */
 double OrderCreate::calculateOrderOpenPriceFromSetups(int index) {
     if (index < 0) {
@@ -160,6 +156,9 @@ double OrderCreate::calculateOrderOpenPriceFromSetups(int index) {
     LevelsDraw levelsDraw;
     ChannelsDraw channelsDraw;
 
+    double openPriceMax = -1;
+    double openPriceMin = -1;
+
     for (int i = ObjectsTotal() - 1; i >= 0; i--) {
         const string levelName = ObjectName(i);
 
@@ -169,7 +168,7 @@ double OrderCreate::calculateOrderOpenPriceFromSetups(int index) {
 
         const double levelSetupValue = ObjectGetValueByShift(levelName, index);
 
-        if (MathAbs(GetPrice() - levelSetupValue) < PIPS_DISTANCE_SETUP * Pip(symbol)) {
+        if (MathAbs(GetPrice() - levelSetupValue) > SETUP_MAX_DISTANCE_PIPS * Pip(symbol)) {
             continue;
         }
 
@@ -193,22 +192,79 @@ double OrderCreate::calculateOrderOpenPriceFromSetups(int index) {
             //// Implement threshold of 3 degrees for opposed slope, with CHANNEL_MIN_SLOPE_VOLATILITY
             if (channelsDraw.getChannelDiscriminator(channelName) == Max &&
                 channelsDraw.getChannelSlope(channelName) <= 0) {
-                SELL_SETUP_TIMESTAMP = PrintTimer(SELL_SETUP_TIMESTAMP, StringConcatenate(
-                    "Found Max setup at Time: ", TimeToStr(Time[index]), " for Level: ", levelName));
-                return levelSetupValue - ORDER_SETUP_BUFFER_PIPS * Pip();
+                openPriceMax = MathMin(openPriceMax, levelSetupValue);
             }
             if (channelsDraw.getChannelDiscriminator(channelName) == Min &&
                 channelsDraw.getChannelSlope(channelName) >= 0) {
-                BUY_SETUP_TIMESTAMP = PrintTimer(BUY_SETUP_TIMESTAMP, StringConcatenate(
-                    "Found Min setup at Time: ", TimeToStr(Time[index]), " for Level: ", levelName));
-                return levelSetupValue + ORDER_SETUP_BUFFER_PIPS * Pip();
+                openPriceMin = MathMax(openPriceMin, levelSetupValue);
             }
         }
     }
 
-    NO_SETUP_TIMESTAMP = PrintTimer(NO_SETUP_TIMESTAMP, StringConcatenate(
-        "No setups found at time: ", TimeToStr(Time[index])));
-    return -1;
+    double openPrice = -1;
+
+    if (MathAbs(GetPrice() - openPriceMax) < MathAbs(GetPrice() - openPriceMin)) {
+        openPrice = openPriceMax - ORDER_SETUP_BUFFER_PIPS * Pip();
+    } else {
+        openPrice = openPriceMin + ORDER_SETUP_BUFFER_PIPS * Pip();
+    }
+
+    if (openPrice == -1) {
+        NO_SETUP_TIMESTAMP = PrintTimer(NO_SETUP_TIMESTAMP, StringConcatenate(
+            "No setups found at time: ", TimeToStr(Time[index])));
+    } else {
+        SETUP_TIMESTAMP = PrintTimer(SETUP_TIMESTAMP, StringConcatenate(
+            "Found setup at time: ", TimeToStr(Time[index]), " for Level: ", openPrice));
+    }
+
+    return openPrice;
+}
+
+/**
+ * Returns the appropriate order type depending on the openPrice.
+ */
+int OrderCreate::calculateOrderTypeFromOpenPrice(double openPrice) {
+    if (openPrice == -1) {
+        return ThrowException(-1, __FUNCTION__, StringConcatenate("Unprocessable openPrice: ", openPrice));
+    }
+
+    LevelsDraw levelsDraw;
+    Discriminator orderDiscriminator = Min;
+
+    for (int i = ObjectsTotal() - 1; i >= 0; i--) {
+        const string levelName = ObjectName(i);
+
+        if (!levelsDraw.isLevelFromName(levelName)) {
+            continue;
+        }
+
+        const double levelSetupValue = ObjectGetValueByShift(levelName, 1);
+
+        if (levelsDraw.getLevelDiscriminator(levelName) == Max &&
+            levelSetupValue == openPrice + ORDER_SETUP_BUFFER_PIPS * Pip()) {
+            orderDiscriminator = Min;
+            break;
+        }
+        if (levelsDraw.getLevelDiscriminator(levelName) == Min &&
+            levelSetupValue == openPrice - ORDER_SETUP_BUFFER_PIPS * Pip()) {
+            orderDiscriminator = Max;
+            break;
+        }
+    }
+
+    if (orderDiscriminator == Min) {
+        if (openPrice > GetPrice()) {
+            return OP_SELLLIMIT;
+        } else {
+            return OP_SELLSTOP;
+        }
+    } else {
+        if (openPrice < GetPrice()) {
+            return OP_BUYLIMIT;
+        } else {
+            return OP_BUYSTOP;
+        }
+    }
 }
 
 /**

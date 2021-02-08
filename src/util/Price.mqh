@@ -71,7 +71,7 @@ double iCandle(CandleSeriesType candleSeriesType, string symbol, int period, int
 
     const int lastError = GetLastError();
 
-    if (lastError == 0 && value != 0) {
+    if ((lastError == 0 || lastError == ERR_HISTORY_WILL_UPDATED) && value != 0) {
         return value;
     }
 
