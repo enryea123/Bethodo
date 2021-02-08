@@ -72,6 +72,7 @@ void OrderCreate::createNewOrder(int index) {
     const bool isBuy = order.isBuy();
     const Discriminator discriminator = isBuy ? Max : Min;
 
+    order.openPrice += discriminator * ORDER_SETUP_BUFFER_PIPS * Pip();
     order.stopLoss = order.openPrice - discriminator * Pip(order.symbol) * STOPLOSS_SIZE_PIPS.get(order.symbol);
 
     const double takeProfitFactor = BASE_TAKEPROFIT_FACTOR;
@@ -156,8 +157,8 @@ double OrderCreate::calculateOrderOpenPriceFromSetups(int index) {
     LevelsDraw levelsDraw;
     ChannelsDraw channelsDraw;
 
-    double openPriceMax = -1;
-    double openPriceMin = -1;
+    double openPriceMax = 100000;
+    double openPriceMin = -100000;
 
     for (int i = ObjectsTotal() - 1; i >= 0; i--) {
         const string levelName = ObjectName(i);
@@ -204,20 +205,20 @@ double OrderCreate::calculateOrderOpenPriceFromSetups(int index) {
     double openPrice = -1;
 
     if (MathAbs(GetPrice() - openPriceMax) < MathAbs(GetPrice() - openPriceMin)) {
-        openPrice = openPriceMax - ORDER_SETUP_BUFFER_PIPS * Pip();
+        openPrice = openPriceMax;
     } else {
-        openPrice = openPriceMin + ORDER_SETUP_BUFFER_PIPS * Pip();
+        openPrice = openPriceMin;
     }
 
-    if (openPrice == -1) {
+    if (openPrice == -1 || openPrice == 100000 || openPrice == -100000) {
         NO_SETUP_TIMESTAMP = PrintTimer(NO_SETUP_TIMESTAMP, StringConcatenate(
-            "No setups found at time: ", TimeToStr(Time[index])));
+            "No setup found at time: ", TimeToStr(Time[index])));
+        return -1;
     } else {
         SETUP_TIMESTAMP = PrintTimer(SETUP_TIMESTAMP, StringConcatenate(
             "Found setup at time: ", TimeToStr(Time[index]), " for Level: ", openPrice));
+        return openPrice;
     }
-
-    return openPrice;
 }
 
 /**
@@ -238,18 +239,16 @@ int OrderCreate::calculateOrderTypeFromOpenPrice(double openPrice) {
             continue;
         }
 
-        const double levelSetupValue = ObjectGetValueByShift(levelName, 1);
+        if (ObjectGetValueByShift(levelName, 1) != openPrice) {
+            continue;
+        }
 
-        if (levelsDraw.getLevelDiscriminator(levelName) == Max &&
-            levelSetupValue == openPrice + ORDER_SETUP_BUFFER_PIPS * Pip()) {
+        if (levelsDraw.getLevelDiscriminator(levelName) == Max) {
             orderDiscriminator = Min;
-            break;
-        }
-        if (levelsDraw.getLevelDiscriminator(levelName) == Min &&
-            levelSetupValue == openPrice - ORDER_SETUP_BUFFER_PIPS * Pip()) {
+        } else {
             orderDiscriminator = Max;
-            break;
         }
+        break;
     }
 
     if (orderDiscriminator == Min) {

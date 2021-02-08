@@ -13,9 +13,6 @@ class Extreme {
     public:
         void calculateAllExtremes(int & [], Discriminator, int);
         void calculateValidExtremes(int & [], Discriminator, int);
-
-    private:
-        int startCandle(int);
 };
 
 /**
@@ -27,7 +24,7 @@ void Extreme::calculateAllExtremes(int & allExtremes[], Discriminator discrimina
 
     int numberOfExtremes = 0;
 
-    for (int i = startCandle(extremesMinDistance); i < EXTREMES_MAX_CANDLES; i++) {
+    for (int i = 2 * extremesMinDistance; i < EXTREMES_MAX_CANDLES; i++) {
         bool isBeatingNeighbours = true;
 
         for (int j = -extremesMinDistance; j < extremesMinDistance + 1; j++) {
@@ -59,7 +56,7 @@ void Extreme::calculateValidExtremes(int & validExtremes[], Discriminator discri
     calculateAllExtremes(allExtremes, discriminator, extremesMinDistance);
 
     int numberOfValidExtremes = 0;
-    int lastFoundValidExtremeIndex = startCandle(extremesMinDistance);
+    int lastFoundValidExtremeIndex = LEVELS_TRANSPARENT_CANDLES;
 
     for (int i = 0; i < ArraySize(allExtremes); i++) {
         bool isValidExtreme = true;
@@ -83,11 +80,4 @@ void Extreme::calculateValidExtremes(int & validExtremes[], Discriminator discri
     }
 
     ArrayResize(validExtremes, numberOfValidExtremes);
-}
-
-/**
- * Candle index from which to start calculating extremes.
- */
-int Extreme::startCandle(int extremesMinDistance) {
-    return 2 * extremesMinDistance;
 }
