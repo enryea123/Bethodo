@@ -94,7 +94,9 @@ string SymbolFamily(string symbol = NULL) {
         return ThrowException(symbol, __FUNCTION__, "Unexistent symbol for SymbolFamily");;
     }
 
-    if (StringContains(symbol, "EUR")) {
+    if (StringContains(symbol, "USD")) {
+        return "USD";
+    } else if (StringContains(symbol, "EUR")) {
         return "EUR";
     } else if (StringContains(symbol, "GBP")) {
         return "GBP";
@@ -102,8 +104,6 @@ string SymbolFamily(string symbol = NULL) {
         return "AUD";
     } else if (StringContains(symbol, "NZD")) {
         return "NZD";
-    } else if (StringContains(symbol, "USD")) {
-        return "USD";
     } else {
         return StringSubstr(symbol, 0, 3);
     }

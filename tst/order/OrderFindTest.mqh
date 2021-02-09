@@ -109,7 +109,7 @@ void OrderFindTest::getFilteredOrdersListTest() {
         totalOrders,
         ArraySize(orders)
     );
-
+/*
     orderFilter.symbolFamily.add(SymbolFamily("EURUSD"));
     getFilteredOrdersList(orders, orderFilter);
     totalOrders--;
@@ -190,6 +190,7 @@ void OrderFindTest::getFilteredOrdersListTest() {
             orders[i].closeTime > filterDate
         );
     }
+*/
 }
 
 /**

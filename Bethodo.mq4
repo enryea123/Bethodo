@@ -3,7 +3,7 @@
 #property strict
 
 #property description "Enrico Albano's automated bot for Bethodo"
-#property version "210.208"
+#property version "210.209"
 
 #include "src/drawer/Drawer.mqh"
 #include "src/market/Market.mqh"
@@ -84,11 +84,16 @@
  *  - Mezzo bug con isGoodTrendLineFromName che prende indici troppo piccoli. O forse va quasi bene perché
  *      cosi mette ordini a canali 2+2, solo che lo fa in leggero ritardo (dovrebbero essere stop a quel punto).
  *      C'è inoltre il problema che il livello orizzontale li è quello del massimo che ha appena creato il canale.
- *      Per risolvere quest'ultimo bug per ora ho messo `2 * extremesMinDistance + 2`. Bisogna confermare se
- *      questo è il valore ottimale o si puo fare di meglio. Magari rendere invisibili i vecchi livelli orizzontali
- *      alle ultime 10 candele, in questo modo non vengono cancellati da un recente spike a mercato chiuso.
+ *      Per risolvere quest'ultimo bug per ora ho messo `TRENDLINE_MIN_EXTREMES_DISTANCE + extremesMinDistance`.
+ *      Bisogna confermare se questo è il valore ottimale o si puo fare di meglio.
  *
  *  - Bot lento nell'inizializzazione e disegni. Troppe trendlines? Magari c'entra con gli errori 4066 di iCandle.
+ *
+ *  - SymbolFamily per ora è troppo rudimentale, devo abilitare famiglie multiple tipo U|G|A|Z. Inoltre devo
+ *      considerare sia correlazione che anticorrelazione (u|G|a|Z) (o forse togliere la distinzione a bethodo).
+ *      Non so come abilitare famiglie multiple, forse il concetto di family è sbagliato e posso fare una
+ *      funzione GetCorrelatedSymbols (dentro OrderFilter?) che prende la lista di simboli permessi e controlla
+ *      tutte le combinazioni, e dopo semplicmente quello che fa è aggiungere tutti i simboli a orderfilter.symbol.add.
  *
  */
 

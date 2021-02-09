@@ -73,11 +73,21 @@ void UtilTest::utilTest() {
 
     unitTest.assertEquals(
         "EUR",
+        SymbolFamily("EURJPY")
+    );
+
+    unitTest.assertEquals(
+        "USD",
         SymbolFamily("EURUSD")
     );
 
     unitTest.assertEquals(
         "NZD",
+        SymbolFamily("NZDCHF")
+    );
+
+    unitTest.assertEquals(
+        "USD",
         SymbolFamily("NZDUSD")
     );
 
