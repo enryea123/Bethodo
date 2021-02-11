@@ -30,6 +30,7 @@ class TrendLine {
     private:
         int getTrendLineIndex(string, string);
         double getMaxTrendLineSlope(double);
+        double getMinTrendLineSlope(double);
 };
 
 /**
@@ -65,6 +66,9 @@ bool TrendLine::areTrendLineSetupsGood(int indexI, int indexJ, Discriminator dis
     if (MathAbs(trendLineSlope) > getMaxTrendLineSlope(trendLineSlope)) {
         return false;
     }
+    if (MathAbs(trendLineSlope) < getMinTrendLineSlope(trendLineSlope)) {
+        return false;
+    }
 
     return true;
 }
@@ -83,6 +87,9 @@ bool TrendLine::isExistingTrendLineBad(string trendLineName, Discriminator discr
     const double trendLineSlope = getTrendLineSlope(trendLineName);
 
     if (MathAbs(trendLineSlope) > getMaxTrendLineSlope(trendLineSlope) && !isBadTrendLineFromName(trendLineName)) {
+        return true;
+    }
+    if (MathAbs(trendLineSlope) < getMinTrendLineSlope(trendLineSlope) && !isBadTrendLineFromName(trendLineName)) {
         return true;
     }
 
@@ -211,6 +218,13 @@ double TrendLine::getMaxTrendLineSlope(double trendLineSlope) {
     const double maxVolatilityPercentage = trendLineSlope > 0 ?
         TRENDLINE_POSITIVE_SLOPE_VOLATILITY : TRENDLINE_NEGATIVE_SLOPE_VOLATILITY;
     return MathAbs(maxVolatilityPercentage * GetMarketVolatility());
+}
+
+/**
+ * Returns the minimum accepted slope for a trendLine to be good.
+ */
+double TrendLine::getMinTrendLineSlope(double trendLineSlope) {
+    return MathAbs(TRENDLINE_MIN_SLOPE_VOLATILITY * GetMarketVolatility());
 }
 
 /**

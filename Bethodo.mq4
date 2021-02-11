@@ -3,7 +3,7 @@
 #property strict
 
 #property description "Enrico Albano's automated bot for Bethodo"
-#property version "210.209"
+#property version "210.211"
 
 #include "src/drawer/Drawer.mqh"
 #include "src/market/Market.mqh"
@@ -35,8 +35,6 @@
  *      Molte controindicazioni come Constants, isMarketOpened, ecc. Le funzioni molto diverse possono avere un
  *      parametro di ingresso per distinguere la strategy e fare cose differenti.
  *
- *  - Rimuovi PrintSpreadInfo().
- *
  *  - Canali con inclinazione leggeremente opposta (3-4 gradi). Rendere GetMarketVolatility esterno e che ritorni Pip
  *      interi (facendo result / Pip()), cosi che la pendenza delle rette possa essere intera. Attenzione che pero
  *      non sono gradi, visto che altrimenti il massimo sarebbe 90.
@@ -47,6 +45,8 @@
  *      Quando si useranno anche ordini stop, bisognerà controllare tutti i type/OP_ come in areThereBetterOrders.
  *      Questo è il problema degli ordini nel passato. In teoria si possono vedere tutte le 9 candele passate
  *      dalle 14 alle 23, e mettere ordine se il setup c'è (ed è valido) su una qualsiasi di quelle.
+ *      Non rimettere ordine che ha già fatto 1:1.5. In generale non rimettere ordini se è già stato perso il primo.
+ *      Mettere ordine stop per canale 2+2 appena fatto (sopra la candela corrente? o un tot di pip meglio).
  *
  *  - La soluzione corrente al bug dei setup multipli è molto approssimativa. Non trova l'ordine migliore ma
  *      quello più in alto/basso possibile, che dovrebbe essere in teoria più vicino. Un ordine successivo
@@ -148,9 +148,6 @@ void OnTick() {
         return;
     }
 
-    // Needed to momentarily gather spread info
-    PrintSpreadInfo();
-
     drawer.drawEverything();
 
     if (!IsTradeAllowed()) {
@@ -191,16 +188,4 @@ void OnDeinit(const int reason) {
 
     ObjectsDeleteAll();
     UNIT_TESTS_COMPLETED = false;
-}
-
-void PrintSpreadInfo() {
-    static datetime timeStamp;
-    const datetime thisTime = (datetime) iCandle(I_time, Symbol(), PERIOD_M5, 0);
-
-    if (timeStamp == thisTime) {
-        return;
-    }
-    timeStamp = thisTime;
-
-    Print("Market spread: ", GetSpread(), " pips");
 }
