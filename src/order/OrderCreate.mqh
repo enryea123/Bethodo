@@ -72,8 +72,8 @@ void OrderCreate::createNewOrder(int index) {
     const bool isBuy = order.isBuy();
     const Discriminator discriminator = isBuy ? Max : Min;
 
-    order.openPrice += discriminator * ORDER_SETUP_BUFFER_PIPS * Pip();
-    order.stopLoss = order.openPrice - discriminator * Pip(order.symbol) * STOPLOSS_SIZE_PIPS.get(order.symbol);
+    order.stopLoss = order.openPrice - discriminator * Pip(order.symbol) *
+        (STOPLOSS_SIZE_PIPS.get(order.symbol) + ORDER_SETUP_BUFFER_PIPS - 1);
 
     const double takeProfitFactor = BASE_TAKEPROFIT_FACTOR;
     order.takeProfit = order.openPrice + discriminator * takeProfitFactor * order.getStopLossPips() * Pip(order.symbol);
@@ -154,60 +154,41 @@ double OrderCreate::calculateOrderOpenPriceFromSetups(int index) {
 
     const string symbol = Symbol();
 
-    LevelsDraw levelsDraw;
     ChannelsDraw channelsDraw;
 
-    double openPriceMax = 100000;
-    double openPriceMin = -100000;
+    double openPriceSell = 100000;
+    double openPriceBuy = -100000;
 
     for (int i = ObjectsTotal() - 1; i >= 0; i--) {
-        const string levelName = ObjectName(i);
+        const string channelName = ObjectName(i);
 
-        if (!levelsDraw.isLevelFromName(levelName)) {
+        if (!channelsDraw.isChannel(channelName)) {
             continue;
         }
 
-        const double levelSetupValue = ObjectGetValueByShift(levelName, index);
+        const double buffer = ORDER_SETUP_BUFFER_PIPS * Pip();
+        const double channelSetupValue = ObjectGetValueByShift(channelName, index);
 
-        if (MathAbs(GetPrice() - levelSetupValue) > SETUP_MAX_DISTANCE_PIPS * Pip(symbol)) {
+        if (MathAbs(GetPrice() - channelSetupValue) > buffer) {
             continue;
         }
 
-        for (int j = ObjectsTotal() - 1; j >= 0; j--) {
-            const string channelName = ObjectName(j);
-
-            if (!channelsDraw.isChannel(channelName)) {
-                continue;
-            }
-
-            if (levelsDraw.getLevelDiscriminator(levelName) != channelsDraw.getChannelDiscriminator(channelName)) {
-                continue;
-            }
-
-            const double channelSetupValue = ObjectGetValueByShift(channelName, index);
-
-            if (MathAbs(channelSetupValue - levelSetupValue) > CHANNEL_LEVEL_SETUP_MAX_DISTANCE_PIPS * Pip()) {
-                continue;
-            }
-
-            //// Implement threshold of 3 degrees for opposed slope, with CHANNEL_MIN_SLOPE_VOLATILITY
-            if (channelsDraw.getChannelDiscriminator(channelName) == Max &&
-                channelsDraw.getChannelSlope(channelName) <= 0) {
-                openPriceMax = MathMin(openPriceMax, levelSetupValue);
-            }
-            if (channelsDraw.getChannelDiscriminator(channelName) == Min &&
-                channelsDraw.getChannelSlope(channelName) >= 0) {
-                openPriceMin = MathMax(openPriceMin, levelSetupValue);
-            }
+        if (channelsDraw.getChannelDiscriminator(channelName) == Max &&
+            channelsDraw.getChannelSlope(channelName) <= 0) {
+            openPriceSell = MathMin(openPriceSell, channelSetupValue - 2 * buffer);
+        }
+        if (channelsDraw.getChannelDiscriminator(channelName) == Min &&
+            channelsDraw.getChannelSlope(channelName) >= 0) {
+            openPriceBuy = MathMax(openPriceBuy, channelSetupValue + 2 * buffer);
         }
     }
 
     double openPrice = -1;
 
-    if (MathAbs(GetPrice() - openPriceMax) < MathAbs(GetPrice() - openPriceMin)) {
-        openPrice = openPriceMax;
+    if (MathAbs(GetPrice() - openPriceSell) < MathAbs(GetPrice() - openPriceBuy)) {
+        openPrice = openPriceSell;
     } else {
-        openPrice = openPriceMin;
+        openPrice = openPriceBuy;
     }
 
     if (openPrice == -1 || openPrice == 100000 || openPrice == -100000) {
@@ -216,7 +197,7 @@ double OrderCreate::calculateOrderOpenPriceFromSetups(int index) {
         return -1;
     } else {
         SETUP_TIMESTAMP = PrintTimer(SETUP_TIMESTAMP, StringConcatenate(
-            "Found setup at time: ", TimeToStr(Time[index]), " for Level: ", openPrice));
+            "Found setup at time: ", TimeToStr(Time[index]), " with openPrice: ", openPrice));
         return openPrice;
     }
 }
@@ -229,40 +210,10 @@ int OrderCreate::calculateOrderTypeFromOpenPrice(double openPrice) {
         return ThrowException(-1, __FUNCTION__, StringConcatenate("Unprocessable openPrice: ", openPrice));
     }
 
-    LevelsDraw levelsDraw;
-    Discriminator orderDiscriminator = Min;
-
-    for (int i = ObjectsTotal() - 1; i >= 0; i--) {
-        const string levelName = ObjectName(i);
-
-        if (!levelsDraw.isLevelFromName(levelName)) {
-            continue;
-        }
-
-        if (ObjectGetValueByShift(levelName, 1) != openPrice) {
-            continue;
-        }
-
-        if (levelsDraw.getLevelDiscriminator(levelName) == Max) {
-            orderDiscriminator = Min;
-        } else {
-            orderDiscriminator = Max;
-        }
-        break;
-    }
-
-    if (orderDiscriminator == Min) {
-        if (openPrice > GetPrice()) {
-            return OP_SELLLIMIT;
-        } else {
-            return OP_SELLSTOP;
-        }
+    if (openPrice > GetPrice()) {
+        return OP_BUYSTOP;
     } else {
-        if (openPrice < GetPrice()) {
-            return OP_BUYLIMIT;
-        } else {
-            return OP_BUYSTOP;
-        }
+        return OP_SELLSTOP;
     }
 }
 

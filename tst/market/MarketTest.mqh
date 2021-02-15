@@ -31,19 +31,19 @@ void MarketTest::isMarketOpenedTest() {
     }
 
     unitTest.assertFalse(
-        isMarketOpened((datetime) "2020-04-06 23:35")
-    );
-
-    unitTest.assertTrue(
         isMarketOpened((datetime) "2020-04-06 23:55")
     );
 
     unitTest.assertTrue(
-        isMarketOpened((datetime) "2021-06-30 14:10")
+        isMarketOpened((datetime) "2020-04-07 00:01")
+    );
+
+    unitTest.assertTrue(
+        isMarketOpened((datetime) "2021-06-30 15:10")
     );
 
     unitTest.assertFalse(
-        isMarketOpened((datetime) "2021-06-30 14:20")
+        isMarketOpened((datetime) "2021-06-30 15:20")
     );
 
     unitTest.assertFalse(

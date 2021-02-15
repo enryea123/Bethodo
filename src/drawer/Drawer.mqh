@@ -70,7 +70,7 @@ void Drawer::drawEverything() {
 void Drawer::setChartDefaultColors() {
     ChartSetInteger(0, CHART_COLOR_FOREGROUND, clrBlack);
     ChartSetInteger(0, CHART_MODE, CHART_CANDLES);
-    ChartSetInteger(0, CHART_SCALE, 3);
+    ChartSetInteger(0, CHART_SCALE, CHART_DEFAULT_ZOOM);
     ChartSetInteger(0, CHART_COLOR_CHART_UP, clrBlack);
     ChartSetInteger(0, CHART_COLOR_CHART_DOWN, clrBlack);
     ChartSetInteger(0, CHART_COLOR_CANDLE_BULL, clrWhite);

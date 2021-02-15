@@ -24,7 +24,7 @@ void Extreme::calculateAllExtremes(int & allExtremes[], Discriminator discrimina
 
     int numberOfExtremes = 0;
 
-    for (int i = TRENDLINE_MIN_EXTREMES_DISTANCE; i < EXTREMES_MAX_CANDLES; i++) {
+    for (int i = extremesMinDistance; i < EXTREMES_MAX_CANDLES; i++) {
         bool isBeatingNeighbours = true;
 
         for (int j = -extremesMinDistance; j < extremesMinDistance + 1; j++) {
