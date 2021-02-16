@@ -72,8 +72,7 @@ void OrderCreate::createNewOrder(int index) {
     const bool isBuy = order.isBuy();
     const Discriminator discriminator = isBuy ? Max : Min;
 
-    order.stopLoss = order.openPrice - discriminator * Pip(order.symbol) *
-        (STOPLOSS_SIZE_PIPS.get(order.symbol) + ORDER_SETUP_BUFFER_PIPS - 1);
+    order.stopLoss = order.openPrice - discriminator * Pip(order.symbol) * STOPLOSS_SIZE_PIPS.get(order.symbol);
 
     const double takeProfitFactor = BASE_TAKEPROFIT_FACTOR;
     order.takeProfit = order.openPrice + discriminator * takeProfitFactor * order.getStopLossPips() * Pip(order.symbol);

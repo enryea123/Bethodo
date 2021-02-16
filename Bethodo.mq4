@@ -3,7 +3,7 @@
 #property strict
 
 #property description "Enrico Albano's automated bot for Bethodo"
-#property version "210.215"
+#property version "210.216"
 
 #include "src/drawer/Drawer.mqh"
 #include "src/market/Market.mqh"
@@ -86,6 +86,7 @@
  *      C'è inoltre il problema che il livello orizzontale li è quello del massimo che ha appena creato il canale.
  *      Per risolvere quest'ultimo bug per ora ho messo `TRENDLINE_MIN_EXTREMES_DISTANCE + extremesMinDistance`.
  *      Bisogna confermare se questo è il valore ottimale o si puo fare di meglio.
+ *      L'indice minimo di una trendLine ora è 1, ma si può fare 0 più avanti, cambiando Extreme e TrendLine.
  *
  *  - Bot lento nell'inizializzazione e disegni. Troppe trendlines? Magari c'entra con gli errori 4066 di iCandle.
  *

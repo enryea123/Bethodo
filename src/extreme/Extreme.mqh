@@ -24,10 +24,14 @@ void Extreme::calculateAllExtremes(int & allExtremes[], Discriminator discrimina
 
     int numberOfExtremes = 0;
 
-    for (int i = extremesMinDistance; i < EXTREMES_MAX_CANDLES; i++) {
+    for (int i = 1; i < EXTREMES_MAX_CANDLES; i++) {
         bool isBeatingNeighbours = true;
 
         for (int j = -extremesMinDistance; j < extremesMinDistance + 1; j++) {
+            if (i + j < 0 || i < 0) {
+                continue;
+            }
+
             if ((iExtreme(discriminator, i) > iExtreme(discriminator, i + j) && discriminator == Min) ||
                 (iExtreme(discriminator, i) < iExtreme(discriminator, i + j) && discriminator == Max)) {
                 isBeatingNeighbours = false;
