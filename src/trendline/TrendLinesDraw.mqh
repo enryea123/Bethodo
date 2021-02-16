@@ -71,9 +71,9 @@ void TrendLinesDraw::drawSingleTrendLine(string trendLineName, int indexI, int i
         OBJ_TREND,
         0,
         Time[indexI],
-        iExtreme(discriminator, indexI) + TRENDLINE_TOLERANCE_PIPS * Pip() * beamFactor,
+        iExtreme(discriminator, indexI) + TRENDLINE_BEAMS_HALF_THICKNESS_PIPS * Pip() * beamFactor,
         Time[indexJ],
-        iExtreme(discriminator, indexJ) - TRENDLINE_TOLERANCE_PIPS * Pip() * beamFactor
+        iExtreme(discriminator, indexJ) - TRENDLINE_BEAMS_HALF_THICKNESS_PIPS * Pip() * beamFactor
     );
 
     if (trendLine_.isExistingTrendLineBad(trendLineName, discriminator)) {

@@ -27,6 +27,7 @@
  *
  *  - Fare unit tests mancanti come areThereOrdersThisSymbolThisPeriod, getTrendLineSlope, getTrendLineDiscriminator.
  *      Ripulire i metodi inutili in TrendLine che sono duplicati in channel.
+ *      Sistemare unit tests commentati per metodi molto cambiati.
  *
  *  - Average true range +2pip per stoploss.
  *
@@ -95,6 +96,9 @@
  *      Non so come abilitare famiglie multiple, forse il concetto di family è sbagliato e posso fare una
  *      funzione GetCorrelatedSymbols (dentro OrderFilter?) che prende la lista di simboli permessi e controlla
  *      tutte le combinazioni, e dopo semplicmente quello che fa è aggiungere tutti i simboli a orderfilter.symbol.add.
+ *
+ *  - I canali per ora verificano il bilanciamento solo al livello delle singole trendline, ma bisogna farlo
+ *      piu a livello di canale, con una verifica a 4 punti.
  *
  */
 

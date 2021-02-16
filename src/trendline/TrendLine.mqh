@@ -63,9 +63,6 @@ bool TrendLine::areTrendLineSetupsGood(int indexI, int indexJ, Discriminator dis
     const double trendLineSlope = (iExtreme(discriminator, indexJ)
         - iExtreme(discriminator, indexI)) / (indexI - indexJ);
 
-    if (MathAbs(trendLineSlope) > getMaxTrendLineSlope(trendLineSlope)) {
-        return false;
-    }
     if (MathAbs(trendLineSlope) < getMinTrendLineSlope(trendLineSlope)) {
         return false;
     }
@@ -78,17 +75,8 @@ bool TrendLine::areTrendLineSetupsGood(int indexI, int indexJ, Discriminator dis
  * The validations are in the order that gives optimal performance.
  */
 bool TrendLine::isExistingTrendLineBad(string trendLineName, Discriminator discriminator) {
-    // TrendLine far from current price
-    if (!IS_DEBUG && MathAbs(ObjectGetValueByShift(trendLineName, 1) - iCandle(I_close, 1)) >
-        MAX_CHANNEL_HEIGHT * PeriodFactor() * Pip()) {
-        return true;
-    }
-
     const double trendLineSlope = getTrendLineSlope(trendLineName);
 
-    if (MathAbs(trendLineSlope) > getMaxTrendLineSlope(trendLineSlope) && !isBadTrendLineFromName(trendLineName)) {
-        return true;
-    }
     if (MathAbs(trendLineSlope) < getMinTrendLineSlope(trendLineSlope) && !isBadTrendLineFromName(trendLineName)) {
         return true;
     }
