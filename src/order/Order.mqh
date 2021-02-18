@@ -57,6 +57,7 @@ Order::Order():
     takeProfit(-1),
     comment(NULL),
     symbol(NULL),
+    openTime(NULL),
     closeTime(NULL),
     expiration(NULL) {
 }

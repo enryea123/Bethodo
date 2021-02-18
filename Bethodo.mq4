@@ -3,7 +3,7 @@
 #property strict
 
 #property description "Enrico Albano's automated bot for Bethodo"
-#property version "210.216"
+#property version "210.218"
 
 #include "src/drawer/Drawer.mqh"
 #include "src/market/Market.mqh"
@@ -77,6 +77,9 @@
  *      Si può considerare un TP fisso a 1:2 / 1:3, uno grande a 1:4 / 1:5 con trailing, o uno "infinito" con trailing.
  *      Si può anche fare un TP che sia alla fine del canale.
  *      Si possono anche mettere scaling in della posizione (si perderebbe il commento), o scaling out.
+ *      Il rollover notturno alle 23 con gap grandi potrebbe essere un grosso problema per il trailing.
+ *      Il trailing deve allontanarsi di un tot (20pip?) poco prima delle 23 per ripristinarsi alle 00, pero
+ *      non puo andare sotto il breakeven a 0. Quindi c'è un trailing che si disattiva quando c'è il rollover stoploss.
  *
  *  - Spread con memoria di 5-10 minuti: se c'è stato spread alto negli ultimi X minuti, il mercato rimane chiuso.
  *      A parte quello il mercato deve rimanere chiuso davvero dalle 14 alle 23? Se non ci fosse spread quali
@@ -88,6 +91,7 @@
  *      Per risolvere quest'ultimo bug per ora ho messo `TRENDLINE_MIN_EXTREMES_DISTANCE + extremesMinDistance`.
  *      Bisogna confermare se questo è il valore ottimale o si puo fare di meglio.
  *      L'indice minimo di una trendLine ora è 1, ma si può fare 0 più avanti, cambiando Extreme e TrendLine.
+ *      Per fare quello però bisogna aggiornare i disegni ogni 15 minuti invece che 60.
  *
  *  - Bot lento nell'inizializzazione e disegni. Troppe trendlines? Magari c'entra con gli errori 4066 di iCandle.
  *
@@ -99,6 +103,7 @@
  *
  *  - I canali per ora verificano il bilanciamento solo al livello delle singole trendline, ma bisogna farlo
  *      piu a livello di canale, con una verifica a 4 punti.
+ *      I canali piccoli che si formano dentro altri canali sono pericolosi, come scegliere in quei casi?
  *
  */
 

@@ -165,20 +165,19 @@ double OrderCreate::calculateOrderOpenPriceFromSetups(int index) {
             continue;
         }
 
-        const double buffer = ORDER_SETUP_BUFFER_PIPS * Pip();
         const double channelSetupValue = ObjectGetValueByShift(channelName, index);
 
-        if (MathAbs(GetPrice() - channelSetupValue) > buffer) {
+        if (MathAbs(GetPrice() - channelSetupValue) > ORDER_SETUP_BUFFER_PIPS * Pip()) {
             continue;
         }
 
         if (channelsDraw.getChannelDiscriminator(channelName) == Max &&
             channelsDraw.getChannelSlope(channelName) <= 0) {
-            openPriceSell = MathMin(openPriceSell, channelSetupValue - 2 * buffer);
+            openPriceSell = MathMin(openPriceSell, channelSetupValue - ORDER_ENTER_BUFFER_PIPS * Pip());
         }
         if (channelsDraw.getChannelDiscriminator(channelName) == Min &&
             channelsDraw.getChannelSlope(channelName) >= 0) {
-            openPriceBuy = MathMax(openPriceBuy, channelSetupValue + 2 * buffer);
+            openPriceBuy = MathMax(openPriceBuy, channelSetupValue + ORDER_ENTER_BUFFER_PIPS * Pip());
         }
     }
 
@@ -224,10 +223,13 @@ bool OrderCreate::areThereRecentOrders(datetime date = NULL) {
     const string symbol = Symbol();
 
     if (date == NULL) {
-        date = (datetime) (TimeCurrent() - 60 * period * MathRound(ORDER_CANDLES_DURATION / PeriodFactor(period)));
-        // Rounding up to the beginning of the last half hour
-        date -= date % (PERIOD_M30 * 60);
+        // order.closeTime is in the broker time zone
+        date = TimeCurrent();
     }
+
+    // Putting a few candles back, and then rounding up to the end of the current half hour
+    date = (datetime) (date - 60 * period * MathRound(CANDLES_BETWEEN_ORDERS / PeriodFactor(period)));
+    date = date - date % (PERIOD_M30 * 60) + PERIOD_M30 * 60;
 
     const datetime thisTime = Time[0];
 

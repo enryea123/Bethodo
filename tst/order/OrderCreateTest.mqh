@@ -19,7 +19,8 @@ class OrderCreateTest: public OrderCreate {
 void OrderCreateTest::areThereRecentOrdersTest() {
     UnitTest unitTest("areThereRecentOrdersTest");
 
-    const datetime filterDate = (datetime) "2020-09-01";
+    const int period = Period();
+    const datetime filterDate = (datetime) "2020-09-01 17:45";
 
     Order order;
     order.magicNumber = BASE_MAGIC_NUMBER + PERIOD_H1;
@@ -33,13 +34,65 @@ void OrderCreateTest::areThereRecentOrdersTest() {
         areThereRecentOrders(filterDate)
     );
 
-    order.closeTime = (datetime) "2020-09-20";
+    order.closeTime = filterDate;
     orderFind_.setMockedOrders(order);
 
     unitTest.assertTrue(
         areThereRecentOrders(filterDate)
     );
 
+    order.closeTime = (datetime) "2020-09-01 18:00";
+    orderFind_.setMockedOrders(order);
+
+    unitTest.assertTrue(
+        areThereRecentOrders(filterDate)
+    );
+
+    if (period == PERIOD_M30) {
+        order.closeTime = (datetime) "2020-09-01 14:50";
+        orderFind_.setMockedOrders(order);
+
+        unitTest.assertFalse(
+            areThereRecentOrders(filterDate)
+        );
+
+        order.closeTime = (datetime) "2020-09-01 15:10";
+        orderFind_.setMockedOrders(order);
+
+        unitTest.assertTrue(
+            areThereRecentOrders(filterDate)
+        );
+    } else if (period == PERIOD_H1) {
+        order.closeTime = (datetime) "2020-09-01 11:50";
+        orderFind_.setMockedOrders(order);
+
+        unitTest.assertFalse(
+            areThereRecentOrders(filterDate)
+        );
+
+        order.closeTime = (datetime) "2020-09-01 12:10";
+        orderFind_.setMockedOrders(order);
+
+        unitTest.assertTrue(
+            areThereRecentOrders(filterDate)
+        );
+    } else if (period == PERIOD_H4) {
+        order.closeTime = (datetime) "2020-09-01 05:50";
+        orderFind_.setMockedOrders(order);
+
+        unitTest.assertFalse(
+            areThereRecentOrders(filterDate)
+        );
+
+        order.closeTime = (datetime) "2020-09-01 06:10";
+        orderFind_.setMockedOrders(order);
+
+        unitTest.assertTrue(
+            areThereRecentOrders(filterDate)
+        );
+    }
+
+    order.closeTime = filterDate;
     order.type = OP_SELLSTOP;
     orderFind_.setMockedOrders(order);
 
