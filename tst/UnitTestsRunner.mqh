@@ -97,6 +97,7 @@ void UnitTestsRunner::runAllUnitTests() {
 
     OrderManageTest orderManageTest;
     orderManageTest.areThereOpenOrdersTest();
+    orderManageTest.areThereOrdersThisSymbolThisPeriodTest();
     orderManageTest.findBestOrderTest();
     orderManageTest.deduplicateOrdersTest();
     orderManageTest.emergencySwitchOffTest();

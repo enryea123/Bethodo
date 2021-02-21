@@ -39,7 +39,7 @@ void MarketTest::isMarketOpenedTest() {
     );
 
     unitTest.assertTrue(
-        isMarketOpened((datetime) "2021-06-30 15:10")
+        isMarketOpened((datetime) "2021-06-30 14:02")
     );
 
     unitTest.assertFalse(

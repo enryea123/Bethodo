@@ -10,6 +10,7 @@
 class OrderManageTest: public OrderManage {
     public:
         void areThereOpenOrdersTest();
+        void areThereOrdersThisSymbolThisPeriodTest();
         void findBestOrderTest();
         void deduplicateOrdersTest();
         void emergencySwitchOffTest();
@@ -51,6 +52,44 @@ void OrderManageTest::areThereOpenOrdersTest() {
 
     unitTest.assertFalse(
         areThereOpenOrders()
+    );
+
+    orderFind_.deleteAllMockedOrders();
+}
+
+void OrderManageTest::areThereOrdersThisSymbolThisPeriodTest() {
+    UnitTest unitTest("areThereOrdersThisSymbolThisPeriodTest");
+
+    Order order;
+    order.magicNumber = BASE_MAGIC_NUMBER + Period();
+    order.symbol = Symbol();
+
+    orderFind_.setMockedOrders(order);
+    unitTest.assertTrue(
+        areThereOrdersThisSymbolThisPeriod()
+    );
+
+    order.symbol = StringConcatenate(SymbolFamily(), "CIA");
+    orderFind_.setMockedOrders(order);
+
+    unitTest.assertFalse(
+        areThereOrdersThisSymbolThisPeriod()
+    );
+
+    order.symbol = Symbol();
+    order.magicNumber = BASE_MAGIC_NUMBER;
+    orderFind_.setMockedOrders(order);
+
+    unitTest.assertFalse(
+        areThereOrdersThisSymbolThisPeriod()
+    );
+
+    order.symbol = Symbol();
+    order.magicNumber = 999999;
+    orderFind_.setMockedOrders(order);
+
+    unitTest.assertFalse(
+        areThereOrdersThisSymbolThisPeriod()
     );
 
     orderFind_.deleteAllMockedOrders();

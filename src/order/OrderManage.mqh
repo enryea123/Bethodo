@@ -53,8 +53,7 @@ bool OrderManage::areThereOpenOrders() {
 }
 
 /**
- * Checks if there are any pending orders,
- * across all periods and correlated symbols.
+ * Checks if there are any orders for this period and symbol.
  */
 bool OrderManage::areThereOrdersThisSymbolThisPeriod() {
     OrderFilter orderFilter;

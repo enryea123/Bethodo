@@ -25,7 +25,10 @@ class OrderTrail {
         void updateOrder(Order &, double, double);
 
         double calculateBreakEvenStopLoss(Order &);
-        double trailer(double, double, double);
+        double calculateTrailingStopLoss(Order &);
+
+    private:
+        double getPreviousExtreme(Discriminator, int);
 };
 
 /**
@@ -50,8 +53,7 @@ void OrderTrail::manageOpenOrders() {
  * Manages a single opened order, calculates its new stoploss, and updates it.
  */
 void OrderTrail::manageOpenOrder(Order & order) {
-    const double breakEvenStopLoss = calculateBreakEvenStopLoss(order);
-
+/*
     if (!order.isBreakEven()) {
         OrderManage orderManage;
         NewsDraw newsDraw;
@@ -62,8 +64,20 @@ void OrderTrail::manageOpenOrder(Order & order) {
             return;
         }
     }
+*/
 
-    updateOrder(order, breakEvenStopLoss);
+    const double breakEvenStopLoss = calculateBreakEvenStopLoss(order);
+    const double trailingStopLoss = calculateTrailingStopLoss(order);
+
+    double newStopLoss;
+
+    if (order.getDiscriminator() == Max) {
+        newStopLoss = MathMax(breakEvenStopLoss, trailingStopLoss);
+    } else {
+        newStopLoss = MathMin(breakEvenStopLoss, trailingStopLoss);
+    }
+
+    updateOrder(order, newStopLoss);
 }
 
 /**
@@ -137,40 +151,52 @@ double OrderTrail::calculateBreakEvenStopLoss(Order & order) {
 /**
  * Trails the stopLoss and the takeProfit for and already existing order.
  */
-double OrderTrail::trailer(double openPrice, double stopLoss, double takeProfit) {
-    const Discriminator discriminator = (takeProfit > openPrice) ? Max : Min;
-    const double currentExtreme = iExtreme(discriminator, 0);
-    const double currentExtremeToOpenDistance = currentExtreme - openPrice;
-    const double profitToOpenDistance = takeProfit - openPrice;
+double OrderTrail::calculateTrailingStopLoss(Order & order) {
+    const Discriminator discriminator = order.getDiscriminator();
+    const Discriminator antiDiscriminator = (discriminator > 0) ? Min : Max;
 
-    const double trailerBaseDistance = 2.0;
-    const double trailerPercent = 0.0;
+    const double currentGain = MathAbs(GetPrice() - order.openPrice) / STOPLOSS_SIZE_PIPS.get(order.symbol);
 
-    const double trailer = trailerBaseDistance - trailerPercent * currentExtremeToOpenDistance / profitToOpenDistance;
+    double stopLoss = order.stopLoss;
 
-    // This trailing assumes a constant takeProfit factor
-    double initialStopLossDistance = profitToOpenDistance / BASE_TAKEPROFIT_FACTOR;
-    double trailerStopLoss = currentExtreme - initialStopLossDistance * trailer;
+    if (currentGain < 2) {
+        stopLoss = order.stopLoss;
+    } else if (currentGain > 2 && currentGain < 3) {
+        stopLoss = getPreviousExtreme(antiDiscriminator, 8);
+    } else if (currentGain > 3 && currentGain < 4) {
+        stopLoss = getPreviousExtreme(antiDiscriminator, 4);
+    } else if (currentGain > 4 && currentGain < 5) {
+        stopLoss = getPreviousExtreme(antiDiscriminator, 2);
+    } else if (currentGain > 5) {
+        stopLoss = getPreviousExtreme(antiDiscriminator, 1);
+    }
 
-    // Trailing StopLoss
     if (discriminator > 0) {
-        stopLoss = MathMax(stopLoss, trailerStopLoss);
+        stopLoss = MathMax(stopLoss, order.stopLoss);
     } else {
-        stopLoss = MathMin(stopLoss, trailerStopLoss);
+        stopLoss = MathMin(stopLoss, order.stopLoss);
     }
 
     return stopLoss;
+}
 
-    // In the future, implement a stopLoss trailing below the previous minimum
-
-    /*
-    // Trailing TakeProfit
-    const double takeProfitPercentUpdate = 0.95;
-
-    if ((discriminator > 0 && currentExtremeToOpenDistance > takeProfitPercentUpdate * profitToOpenDistance) ||
-        (discriminator < 0 && currentExtremeToOpenDistance < takeProfitPercentUpdate * profitToOpenDistance)) {
-        takeProfit += profitToOpenDistance * (1 - takeProfitPercentUpdate);
+/**
+ * Calculates the previous extreme out of numberOfCandles.
+ */
+double OrderTrail::getPreviousExtreme(Discriminator discriminator, int numberOfCandles) {
+    if (numberOfCandles < 0) {
+        return ThrowException(-1, __FUNCTION__, StringConcatenate("Unprocessable numberOfCandles: ", numberOfCandles));
     }
-    return takeProfit;
-    */
+
+    double previousExtreme = (discriminator > 0) ? -10000 : 10000;
+
+    for (int i = 1; i < numberOfCandles + 1; i++) {
+        if (discriminator > 0) {
+            previousExtreme = MathMax(previousExtreme, iExtreme(discriminator, i));
+        } else {
+            previousExtreme = MathMin(previousExtreme, iExtreme(discriminator, i));
+        }
+    }
+
+    return previousExtreme;
 }

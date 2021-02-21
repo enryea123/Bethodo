@@ -3,7 +3,7 @@
 #property strict
 
 #property description "Enrico Albano's automated bot for Bethodo"
-#property version "210.218"
+#property version "210.221"
 
 #include "src/drawer/Drawer.mqh"
 #include "src/market/Market.mqh"
@@ -80,6 +80,7 @@
  *      Il rollover notturno alle 23 con gap grandi potrebbe essere un grosso problema per il trailing.
  *      Il trailing deve allontanarsi di un tot (20pip?) poco prima delle 23 per ripristinarsi alle 00, pero
  *      non puo andare sotto il breakeven a 0. Quindi c'è un trailing che si disattiva quando c'è il rollover stoploss.
+ *      Trailing basico gia implementato, mancano test per calculateTrailingStopLoss e getPreviousExtreme.
  *
  *  - Spread con memoria di 5-10 minuti: se c'è stato spread alto negli ultimi X minuti, il mercato rimane chiuso.
  *      A parte quello il mercato deve rimanere chiuso davvero dalle 14 alle 23? Se non ci fosse spread quali
@@ -103,7 +104,13 @@
  *
  *  - I canali per ora verificano il bilanciamento solo al livello delle singole trendline, ma bisogna farlo
  *      piu a livello di canale, con una verifica a 4 punti.
- *      I canali piccoli che si formano dentro altri canali sono pericolosi, come scegliere in quei casi?
+ *      I canali piccoli che si formano dentro altri canali sono pericolosi, come scegliere in quei casi? Vedi sotto.
+ *      Uguale per 2 canali con pendenza diversa, mettere sempre l'ordine sul piu piccolo.
+ *      Usare fatness per filtrare canali, non height (e diminuire valore massimo). Difficile da fare pero.
+ *      Forse usare OBJ_CHANNEL???
+ *
+ *  - Per ora gli ordini vengono messi fino alle 14 e scadono 1 ora dopo, ma bisognerà fare che vengono
+ *      tolti quelli pending se diventano le 15.
  *
  */
 
