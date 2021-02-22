@@ -3,7 +3,7 @@
 #property strict
 
 #property description "Enrico Albano's automated bot for Bethodo"
-#property version "210.221"
+#property version "210.222"
 
 #include "src/drawer/Drawer.mqh"
 #include "src/market/Market.mqh"
@@ -65,6 +65,7 @@
  *      è stato superato. Può aiutare passare sia openPrice che tipo di ordine? Magari il secondo si può fare
  *      cercando un livello con quel price esatto. Ricordare i pip cuscinetto da togliere per la ricerca, o
  *      magari da mettere direttamente in createNewOrder, invece che in calculateOrderOpenPriceFromSetups.
+ *      Buffer per entrata ordini forse troppo piccolo ora? Magari dev'essere diverso per GBP.
  *
  *  - PeriodFactor inutile, considera se eliminarlo.
  *
@@ -111,6 +112,8 @@
  *
  *  - Per ora gli ordini vengono messi fino alle 14 e scadono 1 ora dopo, ma bisognerà fare che vengono
  *      tolti quelli pending se diventano le 15.
+ *
+ *  - Vedere piu avanti se gli ordini la domenica sera causano troppi stoploss.
  *
  */
 

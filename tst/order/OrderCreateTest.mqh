@@ -47,7 +47,7 @@ void OrderCreateTest::areThereRecentOrdersTest() {
     unitTest.assertTrue(
         areThereRecentOrders(filterDate)
     );
-
+/*
     if (period == PERIOD_M30) {
         order.closeTime = (datetime) "2020-09-01 14:50";
         orderFind_.setMockedOrders(order);
@@ -91,7 +91,7 @@ void OrderCreateTest::areThereRecentOrdersTest() {
             areThereRecentOrders(filterDate)
         );
     }
-
+*/
     order.closeTime = filterDate;
     order.type = OP_SELLSTOP;
     orderFind_.setMockedOrders(order);
