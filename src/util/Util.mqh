@@ -94,9 +94,6 @@ string SymbolFamily(string symbol = NULL) {
         return ThrowException(symbol, __FUNCTION__, "Unexistent symbol for SymbolFamily");;
     }
 
-    // Adding this to remove any type of correlation for now
-    return symbol;
-
     if (StringContains(symbol, "USD")) {
         return "USD";
     } else if (StringContains(symbol, "EUR")) {

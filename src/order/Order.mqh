@@ -36,8 +36,8 @@ class Order {
         int getStopLossPips();
         string toString();
 
-        void buildComment(double, double);
-        double getSizeFactorFromComment();
+        void buildComment(int, double);
+        int getVolatilityFromComment();
 
         bool isOpen();
         bool isBuy();
@@ -154,11 +154,11 @@ string Order::toString() {
 /**
  * Creates the comment for a new pending order, and makes sure it doesn't exceed the maximum length.
  */
-void Order::buildComment(double sizeFactor, double takeProfitFactor) {
+void Order::buildComment(int channelVolatility, double takeProfitFactor) {
     comment = StringConcatenate(
         STRATEGY_PREFIX,
         COMMENT_SEPARATOR, PERIOD_COMMENT_IDENTIFIER, getPeriod(),
-        COMMENT_SEPARATOR, SIZE_FACTOR_COMMENT_IDENTIFIER, NormalizeDouble(sizeFactor, 1),
+        COMMENT_SEPARATOR, CHANNEL_VOLATILITY_COMMENT_IDENTIFIER, (int) MathRound(channelVolatility),
         COMMENT_SEPARATOR, TAKEPROFIT_FACTOR_COMMENT_IDENTIFIER, NormalizeDouble(takeProfitFactor, 1),
         COMMENT_SEPARATOR, STOPLOSS_PIPS_COMMENT_IDENTIFIER, (int) MathRound(getStopLossPips())
     );
@@ -170,31 +170,32 @@ void Order::buildComment(double sizeFactor, double takeProfitFactor) {
 }
 
 /**
- * Estrapolates the sizeFactor from a well formatted order comment.
+ * Estrapolates the channel volatility from a well formatted order comment.
  */
-double Order::getSizeFactorFromComment() {
+int Order::getVolatilityFromComment() {
     if (comment == NULL) {
         return ThrowException(-1, __FUNCTION__, "Order comment not initialized");
     }
-    if (!StringContains(comment, StringConcatenate(SIZE_FACTOR_COMMENT_IDENTIFIER))) {
-        return ThrowException(-1, __FUNCTION__, "The order comment does not contain the sizeFactor");
+    if (!StringContains(comment, StringConcatenate(CHANNEL_VOLATILITY_COMMENT_IDENTIFIER))) {
+        return ThrowException(-1, __FUNCTION__, "The order comment does not contain the volatility");
     }
 
     string splittedComment[];
     StringSplit(comment, StringGetCharacter(COMMENT_SEPARATOR, 0), splittedComment);
 
     for (int i = 0; i < ArraySize(splittedComment); i++) {
-        if (StringContains(splittedComment[i], SIZE_FACTOR_COMMENT_IDENTIFIER)) {
-            StringSplit(splittedComment[i], StringGetCharacter(SIZE_FACTOR_COMMENT_IDENTIFIER, 0), splittedComment);
+        if (StringContains(splittedComment[i], CHANNEL_VOLATILITY_COMMENT_IDENTIFIER)) {
+            StringSplit(splittedComment[i], StringGetCharacter(
+                CHANNEL_VOLATILITY_COMMENT_IDENTIFIER, 0), splittedComment);
             break;
         }
     }
 
     if (ArraySize(splittedComment) == 2) {
-        return (double) splittedComment[1];
+        return (int) splittedComment[1];
     }
 
-    return ThrowException(-1, __FUNCTION__, "Could not get the sizeFactor from comment");
+    return ThrowException(-1, __FUNCTION__, "Could not get the volatility from comment");
 }
 
 /**

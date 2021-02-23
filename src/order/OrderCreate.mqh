@@ -21,7 +21,8 @@ class OrderCreate {
         bool areThereRecentOrders(datetime);
         bool areThereBetterOrders(string, int, double, double);
 
-        double calculateOrderOpenPriceFromSetups(int);
+        string findOrderChannelSetup(int);
+        double calculateOrderOpenPriceFromSetups(int, string);
         int calculateOrderTypeFromOpenPrice(double);
         double calculateOrderLots(int, string);
         double getPercentRisk();
@@ -61,12 +62,14 @@ void OrderCreate::createNewOrder(int index) {
     Order order;
     order.symbol = Symbol();
     order.magicNumber = MagicNumber();
-    order.openPrice = calculateOrderOpenPriceFromSetups(index);
 
-    if (order.openPrice == -1) {
+    const string channelSetup = findOrderChannelSetup(index);
+
+    if (channelSetup == "") {
         return;
     }
 
+    order.openPrice = calculateOrderOpenPriceFromSetups(index, channelSetup);
     order.type = calculateOrderTypeFromOpenPrice(order.openPrice);
 
     const bool isBuy = order.isBuy();
@@ -79,12 +82,16 @@ void OrderCreate::createNewOrder(int index) {
 
     order.lots = calculateOrderLots(order.getStopLossPips(), order.symbol);
 
+    ChannelsDraw channelsDraw;
+    const int channelVolatility = (int) MathRound(1000 * GetMarketVolatility() *
+        channelsDraw.getChannelSlope(channelSetup) / Pip(order.symbol));
+
+    order.buildComment(channelVolatility, takeProfitFactor);
+    order.expiration = Time[0] + (ORDER_CANDLES_DURATION + 1 - index) * order.getPeriod() * 60;
+
     if (areThereBetterOrders(order.symbol, order.type, order.openPrice, order.stopLoss)) {
         return;
     }
-
-    order.expiration = Time[0] + (ORDER_CANDLES_DURATION + 1 - index) * order.getPeriod() * 60;
-    order.buildComment(1.0, takeProfitFactor);
 
     sendOrder(order);
 }
@@ -144,19 +151,20 @@ void OrderCreate::sendOrder(Order & order) {
 }
 
 /**
- * Checks if there are any valid setups, and in that case returns the order openPrice.
+ * Checks if there are any valid channel setups, and in that case returns the channel name.
  */
-double OrderCreate::calculateOrderOpenPriceFromSetups(int index) {
+string OrderCreate::findOrderChannelSetup(int index) {
     if (index < 0) {
-        return ThrowException(-1, __FUNCTION__, StringConcatenate("Unprocessable index: ", index));
+        return ThrowException("", __FUNCTION__, StringConcatenate("Unprocessable index: ", index));
     }
 
+    const double currentMarketValue = GetPrice();
     const string symbol = Symbol();
 
     ChannelsDraw channelsDraw;
 
-    double openPriceSell = 100000;
-    double openPriceBuy = -100000;
+    double previousChannelDistance = 100000;
+    string channelSetupName = "";
 
     for (int i = ObjectsTotal() - 1; i >= 0; i--) {
         const string channelName = ObjectName(i);
@@ -166,38 +174,52 @@ double OrderCreate::calculateOrderOpenPriceFromSetups(int index) {
         }
 
         const double channelSetupValue = ObjectGetValueByShift(channelName, index);
+        const double channelSetupDistance = MathAbs(currentMarketValue - channelSetupValue);
 
-        if (MathAbs(GetPrice() - channelSetupValue) > ORDER_SETUP_BUFFER_PIPS * Pip()) {
+        if (channelSetupDistance > ORDER_SETUP_BUFFER_PIPS * Pip()) {
             continue;
         }
 
-        if (channelsDraw.getChannelDiscriminator(channelName) == Max &&
-            channelsDraw.getChannelSlope(channelName) <= 0) {
-            openPriceSell = MathMin(openPriceSell, channelSetupValue - ORDER_ENTER_BUFFER_PIPS * Pip());
-        }
-        if (channelsDraw.getChannelDiscriminator(channelName) == Min &&
-            channelsDraw.getChannelSlope(channelName) >= 0) {
-            openPriceBuy = MathMax(openPriceBuy, channelSetupValue + ORDER_ENTER_BUFFER_PIPS * Pip());
+        if ((channelsDraw.getChannelDiscriminator(channelName) == Max &&
+            channelsDraw.getChannelSlope(channelName) <= 0) ||
+            (channelsDraw.getChannelDiscriminator(channelName) == Min &&
+            channelsDraw.getChannelSlope(channelName) >= 0)) {
+
+            if (channelSetupDistance < previousChannelDistance) {
+                previousChannelDistance = channelSetupDistance;
+                channelSetupName = channelName;
+            }
         }
     }
 
-    double openPrice = -1;
-
-    if (MathAbs(GetPrice() - openPriceSell) < MathAbs(GetPrice() - openPriceBuy)) {
-        openPrice = openPriceSell;
-    } else {
-        openPrice = openPriceBuy;
-    }
-
-    if (openPrice == -1 || openPrice == 100000 || openPrice == -100000) {
+    if (channelSetupName == "") {
         NO_SETUP_TIMESTAMP = PrintTimer(NO_SETUP_TIMESTAMP, StringConcatenate(
             "No setup found at time: ", TimeToStr(Time[index])));
-        return -1;
     } else {
         SETUP_TIMESTAMP = PrintTimer(SETUP_TIMESTAMP, StringConcatenate(
-            "Found setup at time: ", TimeToStr(Time[index]), " with openPrice: ", openPrice));
-        return openPrice;
+            "Found setup at time: ", TimeToStr(Time[index]), " for channel: ", channelSetupName));
     }
+
+    return channelSetupName;
+}
+
+/**
+ * Checks if there are any valid setups, and in that case returns the order openPrice.
+ */
+double OrderCreate::calculateOrderOpenPriceFromSetups(int index, string channelName) {
+    if (index < 0) {
+        return ThrowException(-1, __FUNCTION__, StringConcatenate("Unprocessable index: ", index));
+    }
+
+    const string symbol = Symbol();
+
+    ChannelsDraw channelsDraw;
+    Discriminator channelDiscriminator = channelsDraw.getChannelDiscriminator(channelName);
+
+    double openPrice = ObjectGetValueByShift(channelName, index) -
+        channelDiscriminator * ORDER_ENTER_BUFFER_PIPS * Pip();
+
+    return openPrice;
 }
 
 /**

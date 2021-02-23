@@ -23,7 +23,6 @@ class TrendLine {
         double getTrendLineSlope(string);
         Discriminator getTrendLineDiscriminator(string);
 
-        double GetMarketVolatility();
         string buildTrendLineName(int, int, int, Discriminator);
         string buildBadTrendLineName(int, int, int, Discriminator);
 
@@ -223,27 +222,6 @@ Discriminator TrendLine::getTrendLineDiscriminator(string trendLineName) {
         return Max;
     }
     return Min;
-}
-
-/**
- * Calculates the market volatility at the trendLines zoom.
- */
-double TrendLine::GetMarketVolatility() {
-    static double volatility;
-
-    if (VOLATILITY_TIMESTAMP != Time[0] || volatility == 0) {
-        double marketMax = -10000, marketMin = 10000;
-
-        for (int i = 0; i < CANDLES_VISIBLE_IN_GRAPH_3X; i++) {
-            marketMax = MathMax(marketMax, iExtreme(Max, i));
-            marketMin = MathMin(marketMin, iExtreme(Min, i));
-        }
-
-        volatility = MathAbs(marketMax - marketMin);
-        VOLATILITY_TIMESTAMP = Time[0];
-    }
-
-    return volatility;
 }
 
 /**

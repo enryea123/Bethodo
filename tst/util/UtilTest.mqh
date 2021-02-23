@@ -70,7 +70,7 @@ void UtilTest::utilTest() {
     unitTest.assertFalse(
         SymbolExists("CIAO")
     );
-/*
+
     unitTest.assertEquals(
         "EUR",
         SymbolFamily("EURJPY")
@@ -105,7 +105,7 @@ void UtilTest::utilTest() {
         "CI",
         SymbolFamily("CI")
     );
-*/
+
     unitTest.assertEquals(
         (datetime) "2020-06-18",
         GetDate((datetime) "2020-06-18 19.46.12")

@@ -152,24 +152,29 @@ double OrderTrail::calculateBreakEvenStopLoss(Order & order) {
  * Trails the stopLoss and the takeProfit for and already existing order.
  */
 double OrderTrail::calculateTrailingStopLoss(Order & order) {
+    const string symbol = order.symbol;
     const Discriminator discriminator = order.getDiscriminator();
     const Discriminator antiDiscriminator = (discriminator > 0) ? Min : Max;
 
-    const double currentGain = MathAbs(GetPrice() - order.openPrice) / STOPLOSS_SIZE_PIPS.get(order.symbol);
+    const double currentGain = MathAbs(GetPrice() - order.openPrice) / Pip(symbol) / STOPLOSS_SIZE_PIPS.get(symbol);
 
     double stopLoss = order.stopLoss;
 
     if (currentGain < 2) {
         stopLoss = order.stopLoss;
     } else if (currentGain > 2 && currentGain < 3) {
-        stopLoss = getPreviousExtreme(antiDiscriminator, 8);
+        stopLoss = getPreviousExtreme(antiDiscriminator, 6);
     } else if (currentGain > 3 && currentGain < 4) {
-        stopLoss = getPreviousExtreme(antiDiscriminator, 4);
+        stopLoss = getPreviousExtreme(antiDiscriminator, 5);
     } else if (currentGain > 4 && currentGain < 5) {
+        stopLoss = getPreviousExtreme(antiDiscriminator, 4);
+    } else if (currentGain > 5 && currentGain < 6) {
+        stopLoss = getPreviousExtreme(antiDiscriminator, 3);
+    } else if (currentGain > 6) {
         stopLoss = getPreviousExtreme(antiDiscriminator, 2);
-    } else if (currentGain > 5) {
-        stopLoss = getPreviousExtreme(antiDiscriminator, 1);
     }
+
+    stopLoss -= discriminator * Pip(symbol);
 
     if (discriminator > 0) {
         stopLoss = MathMax(stopLoss, order.stopLoss);

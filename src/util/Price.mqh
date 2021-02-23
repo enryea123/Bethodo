@@ -127,3 +127,24 @@ bool DownloadHistory() {
     return ThrowException(false, __FUNCTION__, StringConcatenate(
         "Could not download history data, error:", GetLastError()));
 }
+
+/**
+ * Calculates the market volatility at the trendLines zoom.
+ */
+double GetMarketVolatility() {
+    static double volatility;
+
+    if (VOLATILITY_TIMESTAMP != Time[0] || volatility == 0) {
+        double marketMax = -10000, marketMin = 10000;
+
+        for (int i = 0; i < CANDLES_VISIBLE_IN_GRAPH_3X; i++) {
+            marketMax = MathMax(marketMax, iExtreme(Max, i));
+            marketMin = MathMin(marketMin, iExtreme(Min, i));
+        }
+
+        volatility = MathAbs(marketMax - marketMin);
+        VOLATILITY_TIMESTAMP = Time[0];
+    }
+
+    return volatility;
+}

@@ -3,7 +3,7 @@
 #property strict
 
 #property description "Enrico Albano's automated bot for Bethodo"
-#property version "210.222"
+#property version "210.223"
 
 #include "src/drawer/Drawer.mqh"
 #include "src/market/Market.mqh"
@@ -82,6 +82,9 @@
  *      Il trailing deve allontanarsi di un tot (20pip?) poco prima delle 23 per ripristinarsi alle 00, pero
  *      non puo andare sotto il breakeven a 0. Quindi c'è un trailing che si disattiva quando c'è il rollover stoploss.
  *      Trailing basico gia implementato, mancano test per calculateTrailingStopLoss e getPreviousExtreme.
+ *      Trailing basato su RR e minimi invece che numero di candele? (il min piu vicino a 1:1 ecc)
+ *      Per il trailing non usare il prezzo corrente ma il massimo raggiunto nelle ultime N candele.
+ *
  *
  *  - Spread con memoria di 5-10 minuti: se c'è stato spread alto negli ultimi X minuti, il mercato rimane chiuso.
  *      A parte quello il mercato deve rimanere chiuso davvero dalle 14 alle 23? Se non ci fosse spread quali
