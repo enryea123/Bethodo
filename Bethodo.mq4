@@ -3,7 +3,7 @@
 #property strict
 
 #property description "Enrico Albano's automated bot for Bethodo"
-#property version "210.223"
+#property version "210.224"
 
 #include "src/drawer/Drawer.mqh"
 #include "src/market/Market.mqh"
@@ -79,11 +79,12 @@
  *      Si può anche fare un TP che sia alla fine del canale.
  *      Si possono anche mettere scaling in della posizione (si perderebbe il commento), o scaling out.
  *      Il rollover notturno alle 23 con gap grandi potrebbe essere un grosso problema per il trailing.
+ *      Rollover gia mitigato mettendo lo stopLoss a 0. Si potrebbe fare lo stesso per le news, ma magari no.
  *      Il trailing deve allontanarsi di un tot (20pip?) poco prima delle 23 per ripristinarsi alle 00, pero
  *      non puo andare sotto il breakeven a 0. Quindi c'è un trailing che si disattiva quando c'è il rollover stoploss.
  *      Trailing basico gia implementato, mancano test per calculateTrailingStopLoss e getPreviousExtreme.
  *      Trailing basato su RR e minimi invece che numero di candele? (il min piu vicino a 1:1 ecc)
- *      Per il trailing non usare il prezzo corrente ma il massimo raggiunto nelle ultime N candele.
+ *      Per il trailing USARE il prezzo corrente, NON il massimo raggiunto nelle ultime N candele.
  *
  *
  *  - Spread con memoria di 5-10 minuti: se c'è stato spread alto negli ultimi X minuti, il mercato rimane chiuso.
@@ -185,6 +186,7 @@ void OnTick() {
     }
 
     if (GetSpread() > SPREAD_PIPS_CLOSE_MARKET || newsDraw.isNewsTimeWindow()) {
+        SPREAD_NEWS_TIMESTAMP = PrintTimer(SPREAD_NEWS_TIMESTAMP, "Closing pending orders for news or spread");
         orderManage.deletePendingOrders();
     }
 

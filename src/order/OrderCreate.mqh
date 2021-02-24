@@ -19,7 +19,7 @@ class OrderCreate {
         void newOrder();
 
         bool areThereRecentOrders(datetime);
-        bool areThereBetterOrders(string, int, double, double);
+        bool areThereBetterOrders(Order &);
 
         string findOrderChannelSetup(int);
         double calculateOrderOpenPriceFromSetups(int, string);
@@ -89,7 +89,7 @@ void OrderCreate::createNewOrder(int index) {
     order.buildComment(channelVolatility, takeProfitFactor);
     order.expiration = Time[0] + (ORDER_CANDLES_DURATION + 1 - index) * order.getPeriod() * 60;
 
-    if (areThereBetterOrders(order.symbol, order.type, order.openPrice, order.stopLoss)) {
+    if (areThereBetterOrders(order)) {
         return;
     }
 
@@ -289,25 +289,19 @@ bool OrderCreate::areThereRecentOrders(datetime date = NULL) {
 /**
  * Checks if there are other pending orders. In case they are with worst setups it deletes them.
  */
-bool OrderCreate::areThereBetterOrders(string symbol, int type, double openPrice, double stopLoss) {
+bool OrderCreate::areThereBetterOrders(Order & newOrder) {
     OrderFilter orderFilter;
     orderFilter.magicNumber.add(ALLOWED_MAGIC_NUMBERS);
-    orderFilter.symbolFamily.add(SymbolFamily(symbol));
-    orderFilter.type.add(type, OP_BUY, OP_SELL);
+    orderFilter.symbolFamily.add(SymbolFamily(newOrder.symbol));
+    orderFilter.type.add(newOrder.type, OP_BUY, OP_SELL);
 
     Order orders[];
     orderFind_.getFilteredOrdersList(orders, orderFilter);
 
-    Order newOrder;
-    newOrder.symbol = symbol;
-    newOrder.type = type;
-    newOrder.openPrice = openPrice;
-    newOrder.stopLoss = stopLoss;
-
     OrderManage orderManage;
 
-    for (int order = 0; order < ArraySize(orders); order++) {
-        if (orderManage.findBestOrder(orders[order], newOrder)) {
+    for (int i = 0; i < ArraySize(orders); i++) {
+        if (orderManage.findBestOrder(orders[i], newOrder)) {
             return true;
         }
     }

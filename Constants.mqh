@@ -200,6 +200,7 @@ void InitializeMaps() {
 
 datetime NEWS_TIMESTAMP = -1;
 datetime SPREAD_TIMESTAMP = -1;
+datetime SPREAD_NEWS_TIMESTAMP = -1;
 datetime WRONG_CLOCK_TIMESTAMP = -1;
 
 datetime SETUP_TIMESTAMP = -1;

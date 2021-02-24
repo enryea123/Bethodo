@@ -4,6 +4,7 @@
 
 #include "../../Constants.mqh"
 #include "../market/Holiday.mqh"
+#include "../market/MarketTime.mqh"
 #include "../news/NewsDraw.mqh"
 #include "../order/Order.mqh"
 #include "../order/OrderFilter.mqh"
@@ -53,7 +54,6 @@ void OrderTrail::manageOpenOrders() {
  * Manages a single opened order, calculates its new stoploss, and updates it.
  */
 void OrderTrail::manageOpenOrder(Order & order) {
-/*
     if (!order.isBreakEven()) {
         OrderManage orderManage;
         NewsDraw newsDraw;
@@ -64,7 +64,6 @@ void OrderTrail::manageOpenOrder(Order & order) {
             return;
         }
     }
-*/
 
     const double breakEvenStopLoss = calculateBreakEvenStopLoss(order);
     const double trailingStopLoss = calculateTrailingStopLoss(order);
@@ -75,6 +74,17 @@ void OrderTrail::manageOpenOrder(Order & order) {
         newStopLoss = MathMax(breakEvenStopLoss, trailingStopLoss);
     } else {
         newStopLoss = MathMin(breakEvenStopLoss, trailingStopLoss);
+    }
+
+    if (order.isBreakEven()) {
+        MarketTime marketTime;
+        const datetime date = marketTime.timeItaly();
+
+        // Disabling trailing during rollover
+        if ((TimeHour(date) == 22 && TimeMinute(date) > 50) ||
+            (TimeHour(date) == 23 && TimeMinute(date) < 20)) {
+            newStopLoss = order.openPrice;
+        }
     }
 
     updateOrder(order, newStopLoss);
