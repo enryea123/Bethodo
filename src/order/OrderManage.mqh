@@ -195,7 +195,7 @@ bool OrderManage::findBestOrder(Order & order1, Order & order2) {
         return false;
     }
 
-    if (order1.getVolatilityFromComment() > order2.getVolatilityFromComment() + SMALLER_VOLATILITY_BUFFER_PIPS) {
+    if (order1.getVolatilityFromComment() >= order2.getVolatilityFromComment()) {
         return true;
     }
 

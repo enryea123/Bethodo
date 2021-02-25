@@ -20,7 +20,7 @@ class Market {
 
         bool isMarketOpened(datetime);
         bool isEndOfWeek(datetime);
-
+        bool isMarketOpenTime(datetime);
         bool marketConditionsValidation();
 
     protected:
@@ -53,15 +53,11 @@ bool Market::isMarketOpened(datetime date = NULL) {
         date = marketTime_.timeItaly();
     }
 
-    const int hour = TimeHour(date);
-    const int minute = TimeMinute(date);
-
     if (isEndOfWeek(date)) {
         return false;
     }
 
-    if ((hour < MARKET_ORDER_OPEN_HOUR || (hour == MARKET_ORDER_OPEN_HOUR && minute < MARKET_ORDER_OPEN_MINUTE)) &&
-       (hour > MARKET_ORDER_CLOSE_HOUR || (hour == MARKET_ORDER_CLOSE_HOUR && minute > MARKET_ORDER_CLOSE_MINUTE))) {
+    if (!isMarketOpenTime(date)) {
         return false;
     }
 
@@ -96,7 +92,28 @@ bool Market::isEndOfWeek(datetime date = NULL) {
     const int hour = TimeHour(date);
     const int dayOfWeek = TimeDayOfWeek(date);
 
-    if (dayOfWeek > MARKET_CLOSE_DAY || (dayOfWeek == MARKET_CLOSE_DAY && hour >= MARKET_CLOSE_HOUR)) {
+    if (dayOfWeek > MARKET_WEEK_CLOSE_DAY || (dayOfWeek == MARKET_WEEK_CLOSE_DAY && hour >= MARKET_WEEK_CLOSE_HOUR)) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Checks if it is the market open time window.
+ */
+bool Market::isMarketOpenTime(datetime date = NULL) {
+    if (date == NULL) {
+        date = marketTime_.timeItaly();
+    }
+
+    const int hour = TimeHour(date);
+    const int minute = TimeMinute(date);
+
+    if ((hour >= MARKET_OPEN_HOUR_1 &&
+        (hour < MARKET_CLOSE_HOUR_1 || (hour == MARKET_CLOSE_HOUR_1 && minute < MARKET_CLOSE_MINUTE))) ||
+        (hour >= MARKET_OPEN_HOUR_2 &&
+        (hour < MARKET_CLOSE_HOUR_2 || (hour == MARKET_CLOSE_HOUR_2 && minute < MARKET_CLOSE_MINUTE)))) {
         return true;
     }
 

@@ -84,7 +84,7 @@ void OrderCreate::createNewOrder(int index) {
 
     ChannelsDraw channelsDraw;
     const int channelVolatility = (int) MathRound(1000 * GetMarketVolatility() *
-        channelsDraw.getChannelSlope(channelSetup) / Pip(order.symbol));
+        MathAbs(channelsDraw.getChannelSlope(channelSetup)) / Pip(order.symbol));
 
     order.buildComment(channelVolatility, takeProfitFactor);
     order.expiration = Time[0] + (ORDER_CANDLES_DURATION + 1 - index) * order.getPeriod() * 60;

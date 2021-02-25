@@ -26,13 +26,14 @@ const bool IS_DEBUG = false;
 const datetime BOT_EXPIRATION_DATE = (datetime) "2021-06-30";
 
 // TimeZone Milano
-const int MARKET_ORDER_OPEN_HOUR = 23;
-const int MARKET_ORDER_OPEN_MINUTE = 59;
-const int MARKET_ORDER_CLOSE_HOUR = 14;
-const int MARKET_ORDER_CLOSE_MINUTE = 05;
+const int MARKET_OPEN_HOUR_1 = 0;
+const int MARKET_OPEN_HOUR_2 = 8;
+const int MARKET_CLOSE_HOUR_1 = 1;
+const int MARKET_CLOSE_HOUR_2 = 14;
+const int MARKET_CLOSE_MINUTE = 15;
 
-const int MARKET_CLOSE_HOUR = 16;
-const int MARKET_CLOSE_DAY = 5;
+const int MARKET_WEEK_CLOSE_HOUR = 16;
+const int MARKET_WEEK_CLOSE_DAY = 5;
 
 const int BASE_MAGIC_NUMBER = 837000;
 
@@ -132,8 +133,6 @@ const string PERIOD_COMMENT_IDENTIFIER = "P";
 const string CHANNEL_VOLATILITY_COMMENT_IDENTIFIER = "V";
 const string TAKEPROFIT_FACTOR_COMMENT_IDENTIFIER = "R";
 const string STOPLOSS_PIPS_COMMENT_IDENTIFIER = "S";
-
-const int SMALLER_VOLATILITY_BUFFER_PIPS = 1;
 
 const int CHART_DEFAULT_ZOOM = 3;
 const string LAST_DRAWING_TIME_PREFIX = "LastDrawingTime";
