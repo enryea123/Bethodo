@@ -28,6 +28,8 @@ class OrderTrail {
         double calculateBreakEvenStopLoss(Order &);
         double calculateTrailingStopLoss(Order &);
 
+        bool closeOrderForTrailingProfit(Order &);
+
     private:
         double getPreviousExtreme(Discriminator, int);
 };
@@ -87,6 +89,10 @@ void OrderTrail::manageOpenOrder(Order & order) {
         }
     }
 
+    if (closeOrderForTrailingProfit(order)) {
+        return;
+    }
+
     updateOrder(order, newStopLoss);
 }
 
@@ -122,8 +128,8 @@ void OrderTrail::updateOrder(Order & order, double newStopLoss, double newTakePr
 
         const int lastError = GetLastError();
         if (lastError != 0 || !orderModified) {
-            ThrowException(__FUNCTION__, StringConcatenate(
-                "Error ", lastError, " when modifying order: ", order.ticket));
+            ThrowException(__FUNCTION__, StringConcatenate("Error ", lastError,
+                " when modifying order: ", order.toString(), ", newStopLoss: ", newStopLoss));
         }
     }
 }
@@ -173,15 +179,15 @@ double OrderTrail::calculateTrailingStopLoss(Order & order) {
     if (currentGain < 2) {
         stopLoss = order.stopLoss;
     } else if (currentGain > 2 && currentGain < 3) {
-        stopLoss = getPreviousExtreme(antiDiscriminator, 6);
-    } else if (currentGain > 3 && currentGain < 4) {
-        stopLoss = getPreviousExtreme(antiDiscriminator, 5);
-    } else if (currentGain > 4 && currentGain < 5) {
         stopLoss = getPreviousExtreme(antiDiscriminator, 4);
+    } else if (currentGain > 3 && currentGain < 4) {
+        stopLoss = getPreviousExtreme(antiDiscriminator, 1);
+    } else if (currentGain > 4 && currentGain < 5) {
+        stopLoss = getPreviousExtreme(antiDiscriminator, 1);
     } else if (currentGain > 5 && currentGain < 6) {
-        stopLoss = getPreviousExtreme(antiDiscriminator, 3);
+        stopLoss = getPreviousExtreme(antiDiscriminator, 1);
     } else if (currentGain > 6) {
-        stopLoss = getPreviousExtreme(antiDiscriminator, 2);
+        stopLoss = getPreviousExtreme(antiDiscriminator, 1);
     }
 
     stopLoss -= discriminator * Pip(symbol);
@@ -214,4 +220,30 @@ double OrderTrail::getPreviousExtreme(Discriminator discriminator, int numberOfC
     }
 
     return previousExtreme;
+}
+
+/**
+ * Calculates if the order can be closed with a trailing profit
+ */
+bool OrderTrail::closeOrderForTrailingProfit(Order & order) {
+    const int ticket = order.ticket;
+    const string symbol = order.symbol;
+
+    const double previousCloseGain = MathAbs(iCandle(I_close, 1) - order.openPrice) /
+        Pip(symbol) / STOPLOSS_SIZE_PIPS.get(symbol);
+
+    if (previousCloseGain > TRAILING_PROFIT_GAIN_CLOSE) {
+        bool closedOrder = OrderClose(ticket, order.lots, order.closePrice, 3);
+
+        if (closedOrder) {
+            Print(__FUNCTION__, MESSAGE_SEPARATOR, "Closed order: ", ticket, " for trailing profit");
+        } else {
+            ThrowException(__FUNCTION__, StringConcatenate(
+                "Error ", GetLastError(), " when trying to delete order: ", ticket));
+        }
+
+        return true;
+    }
+
+    return false;
 }

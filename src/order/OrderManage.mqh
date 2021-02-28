@@ -199,6 +199,11 @@ bool OrderManage::findBestOrder(Order & order1, Order & order2) {
         return true;
     }
 
+    // Don't replace an order with one on the same symbol
+    if (order1.symbol == order2.symbol) {
+        return true;
+    }
+
     return false;
 }
 

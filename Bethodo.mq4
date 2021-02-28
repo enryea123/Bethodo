@@ -3,7 +3,7 @@
 #property strict
 
 #property description "Enrico Albano's automated bot for Bethodo"
-#property version "210.225"
+#property version "210.228"
 
 #include "src/drawer/Drawer.mqh"
 #include "src/market/Market.mqh"
@@ -96,8 +96,8 @@
  *      C'è inoltre il problema che il livello orizzontale li è quello del massimo che ha appena creato il canale.
  *      Per risolvere quest'ultimo bug per ora ho messo `TRENDLINE_MIN_EXTREMES_DISTANCE + extremesMinDistance`.
  *      Bisogna confermare se questo è il valore ottimale o si puo fare di meglio.
- *      L'indice minimo di una trendLine ora è 1, ma si può fare 0 più avanti, cambiando Extreme e TrendLine.
- *      Per fare quello però bisogna aggiornare i disegni ogni 15 minuti invece che 60.
+ *      L'indice (index) minimo di una trendLine ora è 1, ma si può fare 0 più avanti, cambiando Extreme e TrendLine.
+ *      Per fare quello però bisogna aggiornare i disegni ogni 5-15 minuti invece che 60, senno si perde dei trade.
  *
  *  - Bot lento nell'inizializzazione e disegni. Troppe trendlines? Magari c'entra con gli errori 4066 di iCandle.
  *
@@ -113,6 +113,7 @@
  *      Uguale per 2 canali con pendenza diversa, mettere sempre l'ordine sul piu piccolo.
  *      Usare fatness per filtrare canali, non height (e diminuire valore massimo). Difficile da fare pero.
  *      Forse usare OBJ_CHANNEL???
+ *      Canale gbpaud orrendo (non armonico), alto minimo un multiplo di SL (3) o altezza media candele del canale?
  *
  *  - Per ora gli ordini vengono messi fino alle 14 e scadono 1 ora dopo, ma bisognerà fare che vengono
  *      tolti quelli pending se diventano le 15.

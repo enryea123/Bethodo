@@ -123,7 +123,7 @@ void OrderCreate::sendOrder(Order & order) {
 
     if (lastError != 0) {
         ThrowException(__FUNCTION__, StringConcatenate(
-            "Error ", lastError, " when creating order: ", order.ticket));
+            "Error ", lastError, " when creating order: ", order.toString()));
     }
 
     if (order.ticket > 0) {

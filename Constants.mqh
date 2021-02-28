@@ -83,7 +83,8 @@ const string COMMENT_SEPARATOR = " ";
 const string FILTER_SEPARATOR = "|";
 const string MESSAGE_SEPARATOR = " | ";
 
-const double BASE_TAKEPROFIT_FACTOR = 8;
+const double BASE_TAKEPROFIT_FACTOR = 6;
+const double TRAILING_PROFIT_GAIN_CLOSE = 4;
 
 const int CANDLES_VISIBLE_IN_GRAPH_3X = 465;
 const int CANDLES_VISIBLE_IN_GRAPH_2X = 940;
