@@ -87,7 +87,7 @@ void OrderCreate::createNewOrder(int index) {
         MathAbs(channelsDraw.getChannelSlope(channelSetup)) / Pip(order.symbol));
 
     order.buildComment(channelVolatility, takeProfitFactor);
-    order.expiration = Time[0] + (ORDER_CANDLES_DURATION + 1 - index) * order.getPeriod() * 60;
+    order.expiration = Time[0] + (ORDER_CANDLES_DURATION - index) * order.getPeriod() * 60;
 
     if (areThereBetterOrders(order)) {
         return;
