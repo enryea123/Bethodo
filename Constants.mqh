@@ -52,6 +52,7 @@ const int ALLOWED_DEMO_ACCOUNT_NUMBERS [] = {
 
 const int ALLOWED_LIVE_ACCOUNT_NUMBERS [] = {
     2100183900, // Enrico
+    2100188824, // Enrico
     2100175255, // Eugenio
     2100186686 // Tanya
 };
@@ -128,6 +129,9 @@ const int ORDER_CANDLES_DURATION = 1;
 const int MAX_ORDER_COMMENT_CHARACTERS = 20;
 
 const int CANDLES_BETWEEN_ORDERS = 12;
+
+const int COMMISSION_SAVER_PIPS = 2;
+const int TRAILING_BUFFER_PIPS = 2;
 
 const string STRATEGY_PREFIX = "B";
 const string PERIOD_COMMENT_IDENTIFIER = "P";

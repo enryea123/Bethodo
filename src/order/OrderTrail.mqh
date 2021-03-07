@@ -155,10 +155,10 @@ double OrderTrail::calculateBreakEvenStopLoss(Order & order) {
         PeriodFactor(period) * Pip(symbol) * order.getStopLossPips() * BREAKEVEN_PERCENTAGE.get(symbol);
 
     if (discriminator == Max && currentExtreme > breakEvenPoint) {
-        stopLoss = MathMax(stopLoss, openPrice);
+        stopLoss = MathMax(stopLoss, openPrice + COMMISSION_SAVER_PIPS * Pip(symbol));
     }
     if (discriminator == Min && currentExtreme < breakEvenPoint) {
-        stopLoss = MathMin(stopLoss, openPrice);
+        stopLoss = MathMin(stopLoss, openPrice - COMMISSION_SAVER_PIPS * Pip(symbol));
     }
 
     return stopLoss;
@@ -177,20 +177,16 @@ double OrderTrail::calculateTrailingStopLoss(Order & order) {
     double stopLoss = order.stopLoss;
 
     if (currentGain < 2) {
-        stopLoss = order.stopLoss;
-    } else if (currentGain > 2 && currentGain < 3) {
         stopLoss = getPreviousExtreme(antiDiscriminator, 4);
+    } else if (currentGain > 2 && currentGain < 3) {
+        stopLoss = getPreviousExtreme(antiDiscriminator, 2);
     } else if (currentGain > 3 && currentGain < 4) {
         stopLoss = getPreviousExtreme(antiDiscriminator, 1);
-    } else if (currentGain > 4 && currentGain < 5) {
-        stopLoss = getPreviousExtreme(antiDiscriminator, 1);
-    } else if (currentGain > 5 && currentGain < 6) {
-        stopLoss = getPreviousExtreme(antiDiscriminator, 1);
-    } else if (currentGain > 6) {
-        stopLoss = getPreviousExtreme(antiDiscriminator, 1);
+    } else if (currentGain > 4) {
+        stopLoss = iExtreme(antiDiscriminator, 0);
     }
 
-    stopLoss -= discriminator * Pip(symbol);
+    stopLoss -= discriminator * TRAILING_BUFFER_PIPS * Pip(symbol);
 
     if (discriminator > 0) {
         stopLoss = MathMax(stopLoss, order.stopLoss);
