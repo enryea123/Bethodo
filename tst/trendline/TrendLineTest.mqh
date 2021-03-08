@@ -22,24 +22,7 @@ void TrendLineTest::isGoodTrendLineFromNameTest() {
     );
 
     unitTest.assertFalse(
-        isGoodTrendLineFromName(buildBadTrendLineName(50, 30, 0, Max), 1)
-    );
-
-    unitTest.assertFalse(
-        isGoodTrendLineFromName("randomString", 1)
-    );
-
-    const int timeIndex = 1;
-    const int bigTimeIndex = TRENDLINE_MIN_EXTREMES_DISTANCE;
-
-    unitTest.assertTrue(
-        isGoodTrendLineFromName(buildTrendLineName(
-            20, TRENDLINE_MIN_EXTREMES_DISTANCE + timeIndex, 0, Max), timeIndex)
-    );
-
-    unitTest.assertFalse(
-        isGoodTrendLineFromName(buildTrendLineName(
-            20, TRENDLINE_MIN_EXTREMES_DISTANCE, 0, Max), bigTimeIndex)
+        isGoodTrendLineFromName("randomString")
     );
 }
 

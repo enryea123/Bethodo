@@ -3,7 +3,7 @@
 #property strict
 
 #property description "Enrico Albano's automated bot for Bethodo"
-#property version "210.307"
+#property version "210.308"
 
 #include "src/drawer/Drawer.mqh"
 #include "src/market/Market.mqh"
@@ -85,19 +85,12 @@
  *      Trailing basico gia implementato, mancano test per calculateTrailingStopLoss e getPreviousExtreme.
  *      Trailing basato su RR e minimi invece che numero di candele? (il min piu vicino a 1:1 ecc)
  *      Per il trailing USARE il prezzo corrente, NON il massimo raggiunto nelle ultime N candele.
+ *      Piu avanti mettere gli step del trailing in TRAILING_CANDLES_STEPS.
  *
  *
  *  - Spread con memoria di 5-10 minuti: se c'è stato spread alto negli ultimi X minuti, il mercato rimane chiuso.
  *      A parte quello il mercato deve rimanere chiuso davvero dalle 14 alle 23? Se non ci fosse spread quali
  *      sarebbero i reali valori? Verificare se una spreadHour custom basta o serve proprio chiudere.
- *
- *  - Mezzo bug con isGoodTrendLineFromName che prende indici troppo piccoli. O forse va quasi bene perché
- *      cosi mette ordini a canali 2+2, solo che lo fa in leggero ritardo (dovrebbero essere stop a quel punto).
- *      C'è inoltre il problema che il livello orizzontale li è quello del massimo che ha appena creato il canale.
- *      Per risolvere quest'ultimo bug per ora ho messo `TRENDLINE_MIN_EXTREMES_DISTANCE + extremesMinDistance`.
- *      Bisogna confermare se questo è il valore ottimale o si puo fare di meglio.
- *      L'indice (index) minimo di una trendLine ora è 1, ma si può fare 0 più avanti, cambiando Extreme e TrendLine.
- *      Per fare quello però bisogna aggiornare i disegni ogni 5-15 minuti invece che 60, senno si perde dei trade.
  *
  *  - Bot lento nell'inizializzazione e disegni. Troppe trendlines? Magari c'entra con gli errori 4066 di iCandle.
  *

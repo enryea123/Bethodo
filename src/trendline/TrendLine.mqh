@@ -16,7 +16,7 @@ class TrendLine {
         bool areTrendLineSetupsGood(int, int, Discriminator);
         bool isExistingTrendLineBad(string, Discriminator);
         bool isBadTrendLineFromName(string);
-        bool isGoodTrendLineFromName(string, int);
+        bool isGoodTrendLineFromName(string);
 
         int getTrendLineMaxIndex(string);
         int getTrendLineMinIndex(string);
@@ -41,8 +41,8 @@ bool TrendLine::areTrendLineSetupsGood(int indexI, int indexJ, Discriminator dis
         return ThrowException(false, __FUNCTION__, "indexI < indexJ");
     }
 
-    if (indexI < 1 || indexJ < 1) {
-        return ThrowException(false, __FUNCTION__, "indexI < 1 || indexJ < 1");
+    if (indexI < 0 || indexJ < 0) {
+        return ThrowException(false, __FUNCTION__, "indexI < 0 || indexJ < 0");
     }
 
     if (indexI < TRENDLINE_MIN_CANDLES_LENGTH && indexJ < TRENDLINE_MIN_CANDLES_LENGTH) {
@@ -127,17 +127,11 @@ bool TrendLine::isBadTrendLineFromName(string trendLineName) {
 }
 
 /**
- * Returns true if the given name identifies a good trendLine. In order to be good,
- * the minimum index of the trendLine needs to be far enough from the input timeIndex.
+ * Returns true if the given name identifies a good trendLine.
  */
-bool TrendLine::isGoodTrendLineFromName(string trendLineName, int timeIndex = 0) {
+bool TrendLine::isGoodTrendLineFromName(string trendLineName) {
     if (!StringContains(trendLineName, TRENDLINE_NAME_PREFIX) ||
         StringContains(trendLineName, TRENDLINE_BAD_NAME_SUFFIX)) {
-        return false;
-    }
-
-    // Needed for orders set in the past
-    if (getTrendLineMinIndex(trendLineName) <= timeIndex) {
         return false;
     }
 

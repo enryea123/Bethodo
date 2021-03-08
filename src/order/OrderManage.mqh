@@ -141,12 +141,17 @@ void OrderManage::emergencySwitchOff() {
  * It runs once every 5 minutes to improve performance.
  */
 void OrderManage::lossLimiter() {
-    static datetime timeStamp;
+    const int historyOrders = OrdersHistoryTotal();
     const datetime thisTime = (datetime) iCandle(I_time, Symbol(), PERIOD_M5, 0);
 
-    if (timeStamp == thisTime && UNIT_TESTS_COMPLETED) {
+    static int cachedHistoryOrders;
+    static datetime timeStamp;
+
+    if (timeStamp == thisTime && cachedHistoryOrders == historyOrders && UNIT_TESTS_COMPLETED) {
         return;
     }
+
+    cachedHistoryOrders = historyOrders;
     timeStamp = thisTime;
 
     OrderFilter orderFilter;

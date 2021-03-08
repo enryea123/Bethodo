@@ -97,10 +97,21 @@ void Drawer::setChartMarketClosedColors() {
 }
 
 /**
- * Checks if the drawings need to be updated.
+ * Checks if the drawings need to be updated. The update happens every 15 minutes.
  */
 bool Drawer::areDrawingsUpdated() {
-    return (ObjectFind(getLastDrawingTimeSignalName()) >= 0);
+    bool isDrawingArrowUpdated = (ObjectFind(getLastDrawingTimeSignalName()) >= 0);
+
+    const datetime thisTime = (datetime) iCandle(I_time, Symbol(), PERIOD_M15, 0);
+    static datetime timeStamp;
+
+    if (isDrawingArrowUpdated && timeStamp == thisTime) {
+        return true;
+    }
+
+    timeStamp = thisTime;
+
+    return false;
 }
 
 /**

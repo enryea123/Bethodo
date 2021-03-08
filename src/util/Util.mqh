@@ -51,9 +51,22 @@ double GetPrice(string symbol = NULL) {
 
 /**
  * Returns the market spread for the specified symbol.
+ * If a high spread is detected, it caches it for 5 minutes.
  */
 double GetSpread(string symbol = NULL) {
-    return MarketInfo(symbol, MODE_SPREAD) / 10;
+    const datetime thisTime = (datetime) iCandle(I_time, Symbol(), PERIOD_M5, 0);
+
+    static datetime timeStamp;
+    static double spread;
+
+    if (spread > SPREAD_PIPS_CLOSE_MARKET && timeStamp == thisTime && UNIT_TESTS_COMPLETED) {
+        return spread;
+    }
+
+    timeStamp = thisTime;
+    spread = MarketInfo(symbol, MODE_SPREAD) / 10;
+
+    return spread;
 }
 
 /**

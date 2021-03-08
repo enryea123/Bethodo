@@ -253,17 +253,21 @@ bool OrderCreate::areThereRecentOrders(datetime date = NULL) {
     date = (datetime) (date - 60 * period * MathRound(CANDLES_BETWEEN_ORDERS / PeriodFactor(period)));
     date = date - date % (PERIOD_M30 * 60) + PERIOD_M30 * 60;
 
+    const int historyOrders = OrdersHistoryTotal();
     const datetime thisTime = Time[0];
 
+    static int cachedHistoryOrders;
     static datetime cachedDate;
     static datetime timeStamp;
 
     static bool recentOrders;
 
-    if (cachedDate == date && timeStamp == thisTime && UNIT_TESTS_COMPLETED) {
+    if (cachedDate == date && timeStamp == thisTime &&
+        cachedHistoryOrders == historyOrders && UNIT_TESTS_COMPLETED) {
         return recentOrders;
     }
 
+    cachedHistoryOrders = historyOrders;
     cachedDate = date;
     timeStamp = thisTime;
 
@@ -318,11 +322,9 @@ double OrderCreate::calculateOrderLots(int stopLossPips, string symbol) {
     const int stopLossTicks = stopLossPips * 10;
 
     const double rawOrderLots = absoluteRisk / stopLossTicks;
+    const double lots = NormalizeDouble(MathMax(rawOrderLots, 0.01), 2);
 
-    double lots = 2 * NormalizeDouble(rawOrderLots / 2, 2);
-    lots = MathMax(lots, 0.02);
-
-    return NormalizeDouble(lots, 2);
+    return lots;
 }
 
 /**
