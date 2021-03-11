@@ -147,17 +147,17 @@ double OrderTrail::calculateBreakEvenStopLoss(Order & order) {
     }
 
     const Discriminator discriminator = order.getDiscriminator();
-    const double currentExtreme = iExtreme(discriminator, 0);
+    const double currentPrice = GetPrice();
 
     double stopLoss = order.stopLoss;
 
     double breakEvenPoint = openPrice + discriminator *
         PeriodFactor(period) * Pip(symbol) * order.getStopLossPips() * BREAKEVEN_PERCENTAGE.get(symbol);
 
-    if (discriminator == Max && currentExtreme > breakEvenPoint) {
+    if (discriminator == Max && currentPrice > breakEvenPoint) {
         stopLoss = MathMax(stopLoss, openPrice + COMMISSION_SAVER_PIPS * Pip(symbol));
     }
-    if (discriminator == Min && currentExtreme < breakEvenPoint) {
+    if (discriminator == Min && currentPrice < breakEvenPoint) {
         stopLoss = MathMin(stopLoss, openPrice - COMMISSION_SAVER_PIPS * Pip(symbol));
     }
 
@@ -173,6 +173,10 @@ double OrderTrail::calculateTrailingStopLoss(Order & order) {
     const Discriminator antiDiscriminator = (discriminator > 0) ? Min : Max;
 
     const double currentGain = MathAbs(GetPrice() - order.openPrice) / Pip(symbol) / STOPLOSS_SIZE_PIPS.get(symbol);
+
+    if (!order.isBreakEven()) {
+        return order.stopLoss;
+    }
 
     double stopLoss = order.stopLoss;
 

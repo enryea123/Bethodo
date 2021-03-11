@@ -3,7 +3,7 @@
 #property strict
 
 #property description "Enrico Albano's automated bot for Bethodo"
-#property version "210.309"
+#property version "210.311"
 
 #include "src/drawer/Drawer.mqh"
 #include "src/market/Market.mqh"
@@ -180,8 +180,10 @@ void OnTick() {
     }
 
     if (GetSpread() > SPREAD_PIPS_CLOSE_MARKET || newsDraw.isNewsTimeWindow()) {
-        SPREAD_NEWS_TIMESTAMP = PrintTimer(SPREAD_NEWS_TIMESTAMP, "Closing pending orders for news or spread");
-        orderManage.deletePendingOrders();
+        if (orderManage.areThereOrdersThisSymbolThisPeriod()) {
+            SPREAD_NEWS_TIMESTAMP = PrintTimer(SPREAD_NEWS_TIMESTAMP, "Closing pending orders for news or spread");
+            orderManage.deletePendingOrders();
+        }
     }
 
     if (market.isMarketOpened() && !orderManage.areThereOpenOrders()) {
