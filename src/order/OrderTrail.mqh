@@ -187,7 +187,7 @@ double OrderTrail::calculateTrailingStopLoss(Order & order) {
     } else if (currentGain > 3 && currentGain < 4) {
         stopLoss = getPreviousExtreme(antiDiscriminator, 1);
     } else if (currentGain > 4) {
-        stopLoss = iExtreme(antiDiscriminator, 0);
+        stopLoss = getPreviousExtreme(antiDiscriminator, 0);
     }
 
     stopLoss -= discriminator * TRAILING_BUFFER_PIPS * Pip(symbol);
@@ -211,7 +211,7 @@ double OrderTrail::getPreviousExtreme(Discriminator discriminator, int numberOfC
 
     double previousExtreme = (discriminator > 0) ? -10000 : 10000;
 
-    for (int i = 1; i < numberOfCandles + 1; i++) {
+    for (int i = 0; i < numberOfCandles + 1; i++) {
         if (discriminator > 0) {
             previousExtreme = MathMax(previousExtreme, iExtreme(discriminator, i));
         } else {
