@@ -149,10 +149,13 @@ double OrderTrail::calculateBreakEvenStopLoss(Order & order) {
     const Discriminator discriminator = order.getDiscriminator();
     const double currentPrice = GetPrice();
 
-    double stopLoss = order.stopLoss;
+    const double breakEvenPercentage = BREAKEVEN_PERCENTAGE.containsKey(symbol) ?
+        BREAKEVEN_PERCENTAGE.get(symbol) : DEFAULT_BREAKEVEN_PERCENTAGE;
 
-    double breakEvenPoint = openPrice + discriminator *
-        PeriodFactor(period) * Pip(symbol) * order.getStopLossPips() * BREAKEVEN_PERCENTAGE.get(symbol);
+    const double breakEvenPoint = openPrice + discriminator *
+        PeriodFactor(period) * Pip(symbol) * order.getStopLossPips() * breakEvenPercentage;
+
+    double stopLoss = order.stopLoss;
 
     if (discriminator == Max && currentPrice > breakEvenPoint) {
         stopLoss = MathMax(stopLoss, openPrice + COMMISSION_SAVER_PIPS * Pip(symbol));
@@ -172,7 +175,10 @@ double OrderTrail::calculateTrailingStopLoss(Order & order) {
     const Discriminator discriminator = order.getDiscriminator();
     const Discriminator antiDiscriminator = (discriminator > 0) ? Min : Max;
 
-    const double currentGain = MathAbs(GetPrice() - order.openPrice) / Pip(symbol) / STOPLOSS_SIZE_PIPS.get(symbol);
+    const int stopLossPips = STOPLOSS_SIZE_PIPS.containsKey(symbol) ?
+        STOPLOSS_SIZE_PIPS.get(symbol) : DEFAULT_STOPLOSS_SIZE_PIPS;
+
+    const double currentGain = MathAbs(GetPrice() - order.openPrice) / Pip(symbol) / stopLossPips;
 
     if (!order.isBreakEven()) {
         return order.stopLoss;
@@ -229,8 +235,10 @@ bool OrderTrail::closeOrderForTrailingProfit(Order & order) {
     const int ticket = order.ticket;
     const string symbol = order.symbol;
 
-    const double previousCloseGain = MathAbs(iCandle(I_close, 1) - order.openPrice) /
-        Pip(symbol) / STOPLOSS_SIZE_PIPS.get(symbol);
+    const int stopLossPips = STOPLOSS_SIZE_PIPS.containsKey(symbol) ?
+        STOPLOSS_SIZE_PIPS.get(symbol) : DEFAULT_STOPLOSS_SIZE_PIPS;
+
+    const double previousCloseGain = MathAbs(iCandle(I_close, 1) - order.openPrice) / Pip(symbol) / stopLossPips;
 
     if (previousCloseGain > TRAILING_PROFIT_GAIN_CLOSE) {
         bool closedOrder = OrderClose(ticket, order.lots, order.closePrice, 3);

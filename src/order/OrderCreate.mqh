@@ -59,8 +59,10 @@ void OrderCreate::createNewOrder(int index) {
         return;
     }
 
+    const string symbol = Symbol();
+
     Order order;
-    order.symbol = Symbol();
+    order.symbol = symbol;
     order.magicNumber = MagicNumber();
 
     const string channelSetup = findOrderChannelSetup(index);
@@ -75,16 +77,19 @@ void OrderCreate::createNewOrder(int index) {
     const bool isBuy = order.isBuy();
     const Discriminator discriminator = isBuy ? Max : Min;
 
-    order.stopLoss = order.openPrice - discriminator * Pip(order.symbol) * STOPLOSS_SIZE_PIPS.get(order.symbol);
+    const int stopLossPips = STOPLOSS_SIZE_PIPS.containsKey(symbol) ?
+        STOPLOSS_SIZE_PIPS.get(symbol) : DEFAULT_STOPLOSS_SIZE_PIPS;
+
+    order.stopLoss = order.openPrice - discriminator * Pip(symbol) * stopLossPips;
 
     const double takeProfitFactor = BASE_TAKEPROFIT_FACTOR;
-    order.takeProfit = order.openPrice + discriminator * takeProfitFactor * order.getStopLossPips() * Pip(order.symbol);
+    order.takeProfit = order.openPrice + discriminator * takeProfitFactor * order.getStopLossPips() * Pip(symbol);
 
-    order.lots = calculateOrderLots(order.getStopLossPips(), order.symbol);
+    order.lots = calculateOrderLots(order.getStopLossPips(), symbol);
 
     ChannelsDraw channelsDraw;
     const int channelVolatility = (int) MathRound(1000 * GetMarketVolatility() *
-        MathAbs(channelsDraw.getChannelSlope(channelSetup)) / Pip(order.symbol));
+        MathAbs(channelsDraw.getChannelSlope(channelSetup)) / Pip(symbol));
 
     order.buildComment(channelVolatility, takeProfitFactor);
     order.expiration = Time[0] + (ORDER_CANDLES_DURATION - index) * order.getPeriod() * 60;
