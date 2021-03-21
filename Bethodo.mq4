@@ -3,7 +3,7 @@
 #property strict
 
 #property description "Enrico Albano's automated bot for Bethodo"
-#property version "210.314"
+#property version "210.321"
 
 #include "src/drawer/Drawer.mqh"
 #include "src/market/Market.mqh"
@@ -29,7 +29,7 @@
  *      Ripulire i metodi inutili in TrendLine che sono duplicati in channel.
  *      Sistemare unit tests commentati per metodi molto cambiati.
  *
- *  - Average true range +2pip per stoploss.
+ *  - AverageTrueRange() per stoploss gia messo, ma mancano unittests.
  *
  *  - Separare file comuni Ahtodo Bethodo in librerie condivise con un git a parte. Credo si possa con un "../" in più.
  *      Forse si possono unire i 2 bot sotto un unico workspace, con 2 file .mq4, e da mt4 si può scegliere.

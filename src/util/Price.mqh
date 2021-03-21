@@ -148,3 +148,22 @@ double GetMarketVolatility() {
 
     return volatility;
 }
+
+/**
+ * Calculates the Average True Range for this symbol and period.
+ */
+double AverageTrueRange() {
+    const datetime thisTime = (datetime) iCandle(I_time, Symbol(), PERIOD_D1, 0);
+
+    static datetime timeStamp;
+    static double averageTrueRange;
+
+    if (timeStamp == thisTime && UNIT_TESTS_COMPLETED) {
+        return averageTrueRange;
+    }
+
+    timeStamp = thisTime;
+    averageTrueRange = iATR(Symbol(), Period(), PERIOD_D1, 0) / Pip();
+
+    return averageTrueRange;
+}

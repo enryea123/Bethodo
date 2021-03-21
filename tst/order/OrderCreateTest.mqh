@@ -13,7 +13,6 @@ class OrderCreateTest: public OrderCreate {
         void areThereBetterOrdersTest();
         void calculateOrderOpenPriceFromSetupsTest();
         void calculateOrderLotsTest();
-        void getPercentRiskTest();
 };
 
 void OrderCreateTest::areThereRecentOrdersTest() {
@@ -372,20 +371,4 @@ void OrderCreateTest::calculateOrderLotsTest() {
         calculateOrderLots(stopLossPips, 1, symbol) < 30 // max lots allowed per operation
     );
 */
-}
-
-void OrderCreateTest::getPercentRiskTest() {
-    UnitTest unitTest("getPercentRiskTest");
-
-    if (AccountNumber() == 2100183900) {
-        unitTest.assertEquals(
-            0.015,
-            getPercentRisk()
-        );
-    } else {
-        unitTest.assertEquals(
-            PERCENT_RISK / 100,
-            getPercentRisk()
-        );
-    }
 }

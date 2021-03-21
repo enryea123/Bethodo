@@ -79,7 +79,6 @@ void UnitTestsRunner::runAllUnitTests() {
     orderCreateTest.areThereBetterOrdersTest();
     orderCreateTest.calculateOrderOpenPriceFromSetupsTest();
     orderCreateTest.calculateOrderLotsTest();
-    orderCreateTest.getPercentRiskTest();
 
     OrderTest orderTest;
     orderTest.isBreakEvenTest();

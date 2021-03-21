@@ -149,11 +149,8 @@ double OrderTrail::calculateBreakEvenStopLoss(Order & order) {
     const Discriminator discriminator = order.getDiscriminator();
     const double currentPrice = GetPrice();
 
-    const double breakEvenPercentage = BREAKEVEN_PERCENTAGE.containsKey(symbol) ?
-        BREAKEVEN_PERCENTAGE.get(symbol) : DEFAULT_BREAKEVEN_PERCENTAGE;
-
     const double breakEvenPoint = openPrice + discriminator *
-        PeriodFactor(period) * Pip(symbol) * order.getStopLossPips() * breakEvenPercentage;
+        PeriodFactor(period) * Pip(symbol) * order.getStopLossPips() * BREAKEVEN_PERCENTAGE;
 
     double stopLoss = order.stopLoss;
 
@@ -175,10 +172,7 @@ double OrderTrail::calculateTrailingStopLoss(Order & order) {
     const Discriminator discriminator = order.getDiscriminator();
     const Discriminator antiDiscriminator = (discriminator > 0) ? Min : Max;
 
-    const int stopLossPips = STOPLOSS_SIZE_PIPS.containsKey(symbol) ?
-        STOPLOSS_SIZE_PIPS.get(symbol) : DEFAULT_STOPLOSS_SIZE_PIPS;
-
-    const double currentGain = MathAbs(GetPrice() - order.openPrice) / Pip(symbol) / stopLossPips;
+    const double currentGain = MathAbs(GetPrice() - order.openPrice) / Pip(symbol) / order.getStopLossPips();
 
     if (!order.isBreakEven()) {
         return order.stopLoss;
@@ -235,10 +229,8 @@ bool OrderTrail::closeOrderForTrailingProfit(Order & order) {
     const int ticket = order.ticket;
     const string symbol = order.symbol;
 
-    const int stopLossPips = STOPLOSS_SIZE_PIPS.containsKey(symbol) ?
-        STOPLOSS_SIZE_PIPS.get(symbol) : DEFAULT_STOPLOSS_SIZE_PIPS;
-
-    const double previousCloseGain = MathAbs(iCandle(I_close, 1) - order.openPrice) / Pip(symbol) / stopLossPips;
+    const double previousCloseGain = MathAbs(iCandle(I_close, 1) - order.openPrice) /
+        Pip(symbol) / order.getStopLossPips();
 
     if (previousCloseGain > TRAILING_PROFIT_GAIN_CLOSE) {
         bool closedOrder = OrderClose(ticket, order.lots, order.closePrice, 3);

@@ -56,13 +56,15 @@ double GetPrice(string symbol = NULL) {
 double GetSpread(string symbol = NULL) {
     const datetime thisTime = (datetime) iCandle(I_time, Symbol(), PERIOD_M5, 0);
 
+    static string cachedSymbol;
     static datetime timeStamp;
     static double spread;
 
-    if (spread > SPREAD_PIPS_CLOSE_MARKET && timeStamp == thisTime && UNIT_TESTS_COMPLETED) {
+    if (spread > SPREAD_PIPS_CLOSE_MARKET && symbol == cachedSymbol && timeStamp == thisTime && UNIT_TESTS_COMPLETED) {
         return spread;
     }
 
+    cachedSymbol = symbol;
     timeStamp = thisTime;
     spread = MarketInfo(symbol, MODE_SPREAD) / 10;
 

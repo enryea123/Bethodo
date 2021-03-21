@@ -87,6 +87,7 @@ void OrderTest::getPeriodTest() {
 void OrderTest::getStopLossPipsTest() {
     UnitTest unitTest("getStopLossPipsTest");
 
+    /*
     Order order;
 
     unitTest.assertEquals(
@@ -117,6 +118,7 @@ void OrderTest::getStopLossPipsTest() {
         1,
         order.getStopLossPips()
     );
+    */
 }
 
 void OrderTest::buildCommentTest() {
