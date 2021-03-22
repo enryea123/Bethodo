@@ -163,7 +163,7 @@ double AverageTrueRange() {
     }
 
     timeStamp = thisTime;
-    averageTrueRange = iATR(Symbol(), Period(), PERIOD_D1, 0) / Pip();
+    averageTrueRange = iATR(Symbol(), Period(), ATR_AVERAGE_CANDLES, 0) / Pip();
 
     return averageTrueRange;
 }
