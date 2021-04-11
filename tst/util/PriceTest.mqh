@@ -42,4 +42,16 @@ void PriceTest::priceTest() {
     unitTest.assertTrue(
         MathAbs(iCandle(I_time, -5) - TimeCurrent()) < 10
     );
+
+    unitTest.assertTrue(
+        FindPriceGap(50, -1)
+    );
+
+    unitTest.assertTrue(
+        FindPriceGap(50, 10 * Pip())
+    );
+
+    unitTest.assertFalse(
+        FindPriceGap(50, 100)
+    );
 }

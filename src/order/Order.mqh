@@ -3,6 +3,7 @@
 #property strict
 
 #include "../util/Util.mqh"
+#include "../util/Price.mqh"
 
 
 /**

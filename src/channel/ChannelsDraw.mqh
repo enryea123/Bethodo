@@ -3,7 +3,8 @@
 #property strict
 
 #include "../../Constants.mqh"
-#include "../trendline/trendLine.mqh"
+#include "../pattern/Candle.mqh"
+#include "../trendline/TrendLine.mqh"
 
 
 /**
@@ -22,50 +23,76 @@ class ChannelsDraw {
  * Draws all the channels by filtering out the trendLines.
  */
 void ChannelsDraw::drawChannels() {
+    Candle candle;
     TrendLine trendLine;
 
-    for (int i = ObjectsTotal() - 1; i >= 0; i--) {
-        const string firstTrendLineName = ObjectName(i);
+    if (!FindPriceGap(CHANNEL_PRICE_GAP_CANDLES, CHANNEL_PRICE_GAP_PIPS)) {
+        for (int i = ObjectsTotal() - 1; i >= 0; i--) {
+            const string firstTrendLineName = ObjectName(i);
+            const Discriminator firstTrendLineDiscriminator = trendLine.getTrendLineDiscriminator(firstTrendLineName);
 
-        if (!trendLine.isGoodTrendLineFromName(firstTrendLineName)) {
-            continue;
-        }
-        if (trendLine.getTrendLineDiscriminator(firstTrendLineName) == Min) {
-            continue;
-        }
-
-        const double firstTrendLineSlope = trendLine.getTrendLineSlope(firstTrendLineName);
-
-        for (int j = ObjectsTotal() - 1; j >= 0; j--) {
-            const string secondTrendLineName = ObjectName(j);
-
-            if (!trendLine.isGoodTrendLineFromName(secondTrendLineName)) {
+            if (!trendLine.isGoodTrendLineFromName(firstTrendLineName)) {
                 continue;
             }
-            if (firstTrendLineName == secondTrendLineName) {
-                continue;
-            }
-            if (trendLine.getTrendLineDiscriminator(firstTrendLineName) ==
-                trendLine.getTrendLineDiscriminator(secondTrendLineName)) {
+            if (firstTrendLineDiscriminator == Min) {
                 continue;
             }
 
-            const double trendLinesLengthRatio = trendLine.getTrendLineMaxIndex(secondTrendLineName)
-                / (double) trendLine.getTrendLineMaxIndex(firstTrendLineName);
+            const double firstTrendLineSlope = trendLine.getTrendLineSlope(firstTrendLineName);
 
-            if (trendLinesLengthRatio < CHANNEL_BALANCE_RATIO || trendLinesLengthRatio > 1 / CHANNEL_BALANCE_RATIO) {
-                continue;
-            }
+            for (int j = ObjectsTotal() - 1; j >= 0; j--) {
+                const string secondTrendLineName = ObjectName(j);
+                const Discriminator secondTrendLineDiscriminator =
+                    trendLine.getTrendLineDiscriminator(secondTrendLineName);
 
-            const double channelHeight = MathAbs(ObjectGetValueByShift(secondTrendLineName, 1)
-                - ObjectGetValueByShift(firstTrendLineName, 1));
+                if (!trendLine.isGoodTrendLineFromName(secondTrendLineName)) {
+                    continue;
+                }
+                if (firstTrendLineName == secondTrendLineName) {
+                    continue;
+                }
+                if (firstTrendLineDiscriminator == secondTrendLineDiscriminator) {
+                    continue;
+                }
 
-            if (channelHeight > MAX_CHANNEL_HEIGHT * Pip() || channelHeight < MIN_CHANNEL_HEIGHT * Pip()) {
-                continue;
-            }
+                const double trendLinesLengthRatio = trendLine.getTrendLineMaxIndex(secondTrendLineName)
+                    / (double) trendLine.getTrendLineMaxIndex(firstTrendLineName);
 
-            if (MathAbs(firstTrendLineSlope - trendLine.getTrendLineSlope(secondTrendLineName)) <
-                CHANNEL_PARALLEL_SLOPE_THREHSOLD * Pip()) {
+                if (trendLinesLengthRatio < CHANNEL_BALANCE_RATIO ||
+                    trendLinesLengthRatio > 1 / CHANNEL_BALANCE_RATIO) {
+                    continue;
+                }
+
+                const double channelHeight = MathAbs(ObjectGetValueByShift(secondTrendLineName, 1)
+                    - ObjectGetValueByShift(firstTrendLineName, 1));
+
+                if (channelHeight > AverageTrueRange() * MAX_CHANNEL_HEIGHT_ATR * Pip() ||
+                    channelHeight < AverageTrueRange() * MIN_CHANNEL_HEIGHT_ATR * Pip()) {
+                    continue;
+                }
+
+                if (MathAbs(firstTrendLineSlope - trendLine.getTrendLineSlope(secondTrendLineName)) >
+                    CHANNEL_PARALLEL_SLOPE_THREHSOLD * Pip()) {
+                    continue;
+                }
+
+                const int firstTrendLineMinIndex = trendLine.getTrendLineMinIndex(firstTrendLineName);
+                const int secondTrendLineMinIndex = trendLine.getTrendLineMinIndex(secondTrendLineName);
+                const double maxWickSize = AverageTrueRange() * STOPLOSS_ATR_PERCENTAGE * Pip();
+
+                if (firstTrendLineSlope > 0) {
+                    if (candle.candleUpShadow(firstTrendLineMinIndex) > maxWickSize ||
+                        firstTrendLineMinIndex < CHANNEL_MIN_OPPOSITE_CONTACT_POINT) {
+                        continue;
+                    }
+                }
+                if (firstTrendLineSlope < 0 && candle.candleDownShadow(secondTrendLineMinIndex) > maxWickSize) {
+                    if (candle.candleDownShadow(secondTrendLineMinIndex) > maxWickSize ||
+                        secondTrendLineMinIndex < CHANNEL_MIN_OPPOSITE_CONTACT_POINT) {
+                        continue;
+                    }
+                }
+
                 ObjectSet(firstTrendLineName, OBJPROP_COLOR, CHANNEL_COLOR);
                 ObjectSet(secondTrendLineName, OBJPROP_COLOR, CHANNEL_COLOR);
                 ObjectSet(firstTrendLineName, OBJPROP_WIDTH, CHANNEL_LINE_WIDTH);

@@ -109,8 +109,8 @@ void OrderFindTest::getFilteredOrdersListTest() {
         totalOrders,
         ArraySize(orders)
     );
-/*
-    orderFilter.symbolFamily.add(SymbolFamily("EURUSD"));
+
+    orderFilter.symbolFamily.add(SymbolFamily("EURNZD"));
     getFilteredOrdersList(orders, orderFilter);
     totalOrders--;
 
@@ -159,7 +159,7 @@ void OrderFindTest::getFilteredOrdersListTest() {
         );
     }
 
-    orderFilter.symbol.add("EURUSD");
+    orderFilter.symbol.add("EURNZD");
     getFilteredOrdersList(orders, orderFilter);
     totalOrders--;
 
@@ -170,7 +170,7 @@ void OrderFindTest::getFilteredOrdersListTest() {
 
     for (int i = 0; i < ArraySize(orders); i++) {
         unitTest.assertEquals(
-            "EURUSD",
+            "EURNZD",
             orders[i].symbol
         );
     }
@@ -190,7 +190,6 @@ void OrderFindTest::getFilteredOrdersListTest() {
             orders[i].closeTime > filterDate
         );
     }
-*/
 }
 
 /**
@@ -207,13 +206,13 @@ void OrderFindTest::buildOrderMocks(Order & orders[]) {
 
     orders[1].magicNumber = BASE_MAGIC_NUMBER + PERIOD_H1;
     orders[1].type = OP_SELLSTOP;
-    orders[1].symbol = "EURUSD";
+    orders[1].symbol = "EURNZD";
     orders[1].profit = 25.5;
     orders[1].closeTime = (datetime) "2020-06-30 19:40";
 
     orders[2].magicNumber = BASE_MAGIC_NUMBER + PERIOD_H1;
     orders[2].type = OP_BUY;
-    orders[2].symbol = "EURUSD";
+    orders[2].symbol = "EURNZD";
     orders[2].profit = -12.6;
     orders[2].closeTime = (datetime) "2020-10-30 11:30";
 
@@ -223,11 +222,11 @@ void OrderFindTest::buildOrderMocks(Order & orders[]) {
 
     orders[4].magicNumber = 999999999;
     orders[4].type = OP_SELL;
-    orders[4].symbol = "EURUSD";
+    orders[4].symbol = "EURNZD";
 
     orders[5].magicNumber = BASE_MAGIC_NUMBER + PERIOD_H1;
     orders[5].type = OP_BUYSTOP;
-    orders[5].symbol = "EURUSD";
+    orders[5].symbol = "EURNZD";
     orders[5].profit = 47.23;
     orders[5].closeTime = (datetime) "2020-08-12";
 

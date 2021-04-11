@@ -27,11 +27,8 @@ class OrderTrail {
 
         double calculateBreakEvenStopLoss(Order &);
         double calculateTrailingStopLoss(Order &);
-
-        bool closeOrderForTrailingProfit(Order &);
-
-    private:
         double getPreviousExtreme(Discriminator, int);
+        bool closeOrderForTrailingProfit(Order &);
 };
 
 /**
@@ -61,7 +58,7 @@ void OrderTrail::manageOpenOrder(Order & order) {
         NewsDraw newsDraw;
 
         if (GetSpread() > SPREAD_PIPS_CLOSE_MARKET || newsDraw.isNewsTimeWindow()) {
-            Print("Closing order: ", order.ticket, " for high spread or news");
+            Print("Closing order: ", order.ticket, " for news or spread");
             orderManage.deleteSingleOrder(order);
             return;
         }
@@ -180,14 +177,18 @@ double OrderTrail::calculateTrailingStopLoss(Order & order) {
 
     double stopLoss = order.stopLoss;
 
-    if (currentGain < 2) {
-        stopLoss = getPreviousExtreme(antiDiscriminator, 4);
-    } else if (currentGain > 2 && currentGain < 3) {
-        stopLoss = getPreviousExtreme(antiDiscriminator, 2);
-    } else if (currentGain > 3 && currentGain < 4) {
-        stopLoss = getPreviousExtreme(antiDiscriminator, 1);
-    } else if (currentGain > 4) {
-        stopLoss = getPreviousExtreme(antiDiscriminator, 0);
+    const int trailingSteps = TRAILING_STEPS.size();
+
+    for (int i = 0; i < trailingSteps; i++) {
+        if (i < trailingSteps - 1) {
+            if (currentGain > TRAILING_STEPS.getKeys(i) && currentGain < TRAILING_STEPS.getKeys(i + 1)) {
+                stopLoss = getPreviousExtreme(antiDiscriminator, TRAILING_STEPS.getValues(i));
+            }
+        } else {
+            if (currentGain > TRAILING_STEPS.getKeys(i)) {
+                stopLoss = getPreviousExtreme(antiDiscriminator, TRAILING_STEPS.getValues(i));
+            }
+        }
     }
 
     stopLoss -= discriminator * TRAILING_BUFFER_PIPS * Pip(symbol);
@@ -229,17 +230,22 @@ bool OrderTrail::closeOrderForTrailingProfit(Order & order) {
     const int ticket = order.ticket;
     const string symbol = order.symbol;
 
-    const double previousCloseGain = MathAbs(iCandle(I_close, 1) - order.openPrice) /
+    const double lastCandleCloseGain = MathAbs(iCandle(I_close, 1) - order.openPrice) /
         Pip(symbol) / order.getStopLossPips();
 
-    if (previousCloseGain > TRAILING_PROFIT_GAIN_CLOSE) {
-        bool closedOrder = OrderClose(ticket, order.lots, order.closePrice, 3);
+    if (lastCandleCloseGain > TRAILING_PROFIT_GAIN_CLOSE) {
+        ResetLastError();
 
-        if (closedOrder) {
+        OrderManage orderManage;
+        orderManage.deleteSingleOrder(order);
+
+        const int lastError = GetLastError();
+
+        if (lastError == 0 && UNIT_TESTS_COMPLETED) {
             Print(__FUNCTION__, MESSAGE_SEPARATOR, "Closed order: ", ticket, " for trailing profit");
         } else {
             ThrowException(__FUNCTION__, StringConcatenate(
-                "Error ", GetLastError(), " when trying to delete order: ", ticket));
+                "Error ", lastError, " when trying to delete order: ", ticket));
         }
 
         return true;

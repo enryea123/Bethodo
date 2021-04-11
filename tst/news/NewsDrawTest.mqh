@@ -20,28 +20,28 @@ void NewsDrawTest::isNewsTimeWindowTest() {
     news.title = "Fake news for NewsDrawTest";
     news.country = Symbol();
     news.impact = "High";
-    news.date = (datetime) "2020-04.07 13:50";
+    news.date = (datetime) "2020-04-07 13:50";
 
     drawSingleNewsLine(news);
 
     unitTest.assertTrue(
-        isNewsTimeWindow((datetime) "2020-04.07 13:50")
+        isNewsTimeWindow((datetime) "2020-04-07 13:50")
     );
 
     unitTest.assertFalse(
-        isNewsTimeWindow((datetime) "2020-04.07 12:45")
+        isNewsTimeWindow((datetime) "2020-04-07 12:45")
     );
 
     unitTest.assertTrue(
-        isNewsTimeWindow((datetime) "2020-04.07 12:55")
+        isNewsTimeWindow((datetime) "2020-04-07 12:55")
     );
 
     unitTest.assertFalse(
-        isNewsTimeWindow((datetime) "2020-04.07 14:55")
+        isNewsTimeWindow((datetime) "2020-04-07 14:55")
     );
 
     unitTest.assertTrue(
-        isNewsTimeWindow((datetime) "2020-04.07 14:45")
+        isNewsTimeWindow((datetime) "2020-04-07 14:45")
     );
 
     ObjectsDeleteAll();
@@ -50,7 +50,7 @@ void NewsDrawTest::isNewsTimeWindowTest() {
     drawSingleNewsLine(news);
 
     unitTest.assertFalse(
-        isNewsTimeWindow((datetime) "2020-04.07 13:50")
+        isNewsTimeWindow((datetime) "2020-04-07 13:50")
     );
 
     ObjectsDeleteAll();

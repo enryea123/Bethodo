@@ -11,6 +11,7 @@ class OrderManageTest: public OrderManage {
     public:
         void areThereOpenOrdersTest();
         void areThereOrdersThisSymbolThisPeriodTest();
+        void areTherePendingOrdersThisSymbolThisPeriodTest();
         void findBestOrderTest();
         void deduplicateOrdersTest();
         void emergencySwitchOffTest();
@@ -95,16 +96,35 @@ void OrderManageTest::areThereOrdersThisSymbolThisPeriodTest() {
     orderFind_.deleteAllMockedOrders();
 }
 
+void OrderManageTest::areTherePendingOrdersThisSymbolThisPeriodTest() {
+    UnitTest unitTest("areTherePendingOrdersThisSymbolThisPeriodTest");
+
+    Order order;
+    order.magicNumber = BASE_MAGIC_NUMBER + Period();
+    order.symbol = Symbol();
+    order.type = OP_BUY;
+
+    orderFind_.setMockedOrders(order);
+    unitTest.assertFalse(
+        areTherePendingOrdersThisSymbolThisPeriod()
+    );
+
+    order.type = OP_SELLSTOP;
+    orderFind_.setMockedOrders(order);
+
+    unitTest.assertTrue(
+        areTherePendingOrdersThisSymbolThisPeriod()
+    );
+}
+
 void OrderManageTest::findBestOrderTest() {
     UnitTest unitTest("findBestOrderTest");
 
-/*
     Order orders[];
     ArrayResize(orders, 2);
     orders[0].symbol = Symbol();
     orders[0].type = OP_SELLSTOP;
-    orders[0].openPrice = GetPrice(orders[0].symbol);
-    orders[0].stopLoss = orders[0].openPrice + 20 * Pip();
+    orders[0].comment = "V50";
 
     orders[1] = orders[0];
 
@@ -119,12 +139,24 @@ void OrderManageTest::findBestOrderTest() {
     );
 
     orders[1].type = OP_SELLSTOP;
-    orders[1].stopLoss -= 2 * Pip();
+    orders[0].type = OP_BUY;
+
+    unitTest.assertTrue(
+        findBestOrder(orders[0], orders[1])
+    );
+
+    orders[0].type = OP_SELLSTOP;
+    orders[1].comment = "V99";
+
+    unitTest.assertTrue(
+        findBestOrder(orders[0], orders[1])
+    );
+
+    orders[1].symbol = "CIAO";
 
     unitTest.assertFalse(
         findBestOrder(orders[0], orders[1])
     );
-*/
 }
 
 void OrderManageTest::deduplicateOrdersTest() {

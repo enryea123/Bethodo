@@ -17,6 +17,7 @@ class OrderManage {
     public:
         bool areThereOpenOrders();
         bool areThereOrdersThisSymbolThisPeriod();
+        bool areTherePendingOrdersThisSymbolThisPeriod();
 
         void deduplicateOrders();
         void emergencySwitchOff();
@@ -59,6 +60,23 @@ bool OrderManage::areThereOrdersThisSymbolThisPeriod() {
     OrderFilter orderFilter;
     orderFilter.magicNumber.add(MagicNumber());
     orderFilter.symbol.add(Symbol());
+
+    Order orders[];
+    orderFind_.getFilteredOrdersList(orders, orderFilter);
+
+    return (ArraySize(orders) > 0);
+}
+
+/**
+ * Checks if there are any orders for this period and symbol.
+ */
+bool OrderManage::areTherePendingOrdersThisSymbolThisPeriod() {
+    OrderFilter orderFilter;
+    orderFilter.magicNumber.add(MagicNumber());
+    orderFilter.symbol.add(Symbol());
+
+    orderFilter.type.setFilterType(Exclude);
+    orderFilter.type.add(OP_BUY, OP_SELL);
 
     Order orders[];
     orderFind_.getFilteredOrdersList(orders, orderFilter);

@@ -97,7 +97,6 @@ void TrendLineTest::trendLineNameTest() {
 void TrendLineTest::trendLineSetupsTest() {
     UnitTest unitTest("trendLineSetupsTest");
 
-/*
     unitTest.assertFalse(
         areTrendLineSetupsGood(10, 30, Max)
     );
@@ -121,20 +120,19 @@ void TrendLineTest::trendLineSetupsTest() {
     const double slopeMin = (iExtreme(Min, 20) - iExtreme(Min, 50)) / (50 - 20);
     const double slopeMax = (iExtreme(Max, 20) - iExtreme(Max, 50)) / (50 - 20);
 
-    if (slopeMin > 0 && MathAbs(slopeMin) >
-        TRENDLINE_POSITIVE_SLOPE_VOLATILITY * GetMarketVolatility()) {
+    if (slopeMin > 0 && MathAbs(slopeMin) <
+        TRENDLINE_MIN_SLOPE_VOLATILITY * GetMarketVolatility()) {
         unitTest.assertFalse(
             areTrendLineSetupsGood(50, 20, Min),
             "TrendLine positive slope volatility"
         );
-    } else if (slopeMax < 0 && MathAbs(slopeMax) >
-        TRENDLINE_NEGATIVE_SLOPE_VOLATILITY * GetMarketVolatility()) {
+    } else if (slopeMax < 0 && MathAbs(slopeMax) <
+        TRENDLINE_MIN_SLOPE_VOLATILITY * GetMarketVolatility()) {
         unitTest.assertFalse(
             areTrendLineSetupsGood(50, 20, Max),
             "TrendLine negative slope volatility"
         );
     } else if (IS_DEBUG) {
-        Print("trendLineSetupsTest: excessive slope test skipped..");
+        Print("trendLineSetupsTest: slope test skipped..");
     }
-*/
 }

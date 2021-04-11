@@ -12,7 +12,7 @@ class OrderTest {
         void getPeriodTest();
         void getStopLossPipsTest();
         void buildCommentTest();
-        void getSizeFactorFromCommentTest();
+        void getVolatilityFromCommentTest();
         void isOpenTest();
         void isBuySellTest();
         void getDiscriminatorTest();
@@ -87,7 +87,6 @@ void OrderTest::getPeriodTest() {
 void OrderTest::getStopLossPipsTest() {
     UnitTest unitTest("getStopLossPipsTest");
 
-    /*
     Order order;
 
     unitTest.assertEquals(
@@ -95,62 +94,27 @@ void OrderTest::getStopLossPipsTest() {
         order.getStopLossPips()
     );
 
-    order.openPrice = 1.1;
-    order.stopLoss = 1.10102;
+    order.symbol = "CIAO";
 
     unitTest.assertEquals(
         -1,
         order.getStopLossPips()
     );
 
-    order.symbol = "EURUSD";
+    order.symbol = Symbol();
 
-    unitTest.assertEquals(
-        10,
-        order.getStopLossPips()
+    unitTest.assertTrue(
+        order.getStopLossPips() > 0
     );
-
-    order.openPrice = 1.11;
-    order.stopLoss = 1.1;
-    order.symbol = "EURJPY";
-
-    unitTest.assertEquals(
-        1,
-        order.getStopLossPips()
-    );
-    */
 }
 
 void OrderTest::buildCommentTest() {
     UnitTest unitTest("buildCommentTest");
-/*
+
+    const int stopLoss = (int) MathRound(AverageTrueRange() * STOPLOSS_ATR_PERCENTAGE);
+
     Order order;
-    order.magicNumber = 837060;
-    order.symbol = Symbol();
-    order.openPrice = GetPrice();
-    order.stopLoss = order.openPrice + 10 * Pip();
-
-    order.buildComment(1, 3);
-
-    unitTest.assertEquals(
-        "B P60 V1 R3 S10",
-        order.comment
-    );
-
-    order.magicNumber = 837060;
-    order.stopLoss = order.openPrice + 123456789 * Pip();
-
-    order.buildComment(2, 2.5);
-
-    // It truncates a long comment
-    unitTest.assertEquals(
-        "B P60 V2 R2.5 S123",
-        order.comment
-    );
-
     order.magicNumber = -1;
-    order.symbol = NULL;
-    order.stopLoss = order.openPrice + 10 * Pip();
 
     order.buildComment(1, 3);
 
@@ -158,63 +122,78 @@ void OrderTest::buildCommentTest() {
         "B P-1 V1 R3 S-1",
         order.comment
     );
-*/
+
+    order.magicNumber = 837060;
+    order.symbol = Symbol();
+
+    order.buildComment(100, 3.5);
+
+    unitTest.assertEquals(
+        StringConcatenate("B P60 V100 R3.5 S", stopLoss),
+        order.comment
+    );
+
+    order.buildComment(1111111111, 5);
+
+    // It truncates a long comment
+    unitTest.assertEquals(
+        "B P60 V1111111111 R5",
+        order.comment
+    );
 }
 
-void OrderTest::getSizeFactorFromCommentTest() {
-    UnitTest unitTest("getSizeFactorFromCommentTest");
+void OrderTest::getVolatilityFromCommentTest() {
+    UnitTest unitTest("getVolatilityFromCommentTest");
 
-/*
     Order order;
-    order.comment = "B P30 M1.3 R3 S10";
+    order.comment = "B P60 V50 R3 S10";
 
     unitTest.assertEquals(
-        1.3,
-        order.getSizeFactorFromComment()
+        50,
+        order.getVolatilityFromComment()
     );
 
-    order.comment = "B P30 M1 R3 S10";
+    order.comment = "B P60 V150 R3 S10";
 
     unitTest.assertEquals(
-        1.0,
-        order.getSizeFactorFromComment()
+        150,
+        order.getVolatilityFromComment()
     );
 
-    order.comment = "M0.8";
+    order.comment = "V50";
 
     unitTest.assertEquals(
-        0.8,
-        order.getSizeFactorFromComment()
+        50,
+        order.getVolatilityFromComment()
     );
 
-    order.comment = "B P30 W1 R3 S10";
+    order.comment = "B P60 W1 R3 S10";
 
     unitTest.assertEquals(
-        -1.0,
-        order.getSizeFactorFromComment()
+        -1,
+        order.getVolatilityFromComment()
     );
 
     order.comment = "W1";
 
     unitTest.assertEquals(
-        -1.0,
-        order.getSizeFactorFromComment()
+        -1,
+        order.getVolatilityFromComment()
     );
 
-    order.comment = "asdasdM123asdasd";
+    order.comment = "asdasdV123asdasd";
 
     unitTest.assertEquals(
-        123.0,
-        order.getSizeFactorFromComment()
+        123,
+        order.getVolatilityFromComment()
     );
 
     order.comment = NULL;
 
     unitTest.assertEquals(
-        -1.0,
-        order.getSizeFactorFromComment()
+        -1,
+        order.getVolatilityFromComment()
     );
-*/
 }
 
 void OrderTest::isOpenTest() {

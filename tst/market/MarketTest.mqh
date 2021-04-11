@@ -39,11 +39,11 @@ void MarketTest::isMarketOpenedTest() {
     );
 
     unitTest.assertTrue(
-        isMarketOpened((datetime) "2021-06-30 14:02")
+        isMarketOpened((datetime) "2021-06-30 13:02")
     );
 
     unitTest.assertFalse(
-        isMarketOpened((datetime) "2021-06-30 15:20")
+        isMarketOpened((datetime) "2021-06-30 15:30")
     );
 
     unitTest.assertFalse(
@@ -54,29 +54,29 @@ void MarketTest::isMarketOpenedTest() {
     news.title = "Fake news for MarketTest";
     news.country = Symbol();
     news.impact = "High";
-    news.date = (datetime) "2020-04.07 12:50";
+    news.date = (datetime) "2020-04-07 10:50";
 
     NewsDraw newsDraw;
     newsDraw.drawSingleNewsLine(news);
 
+    unitTest.assertTrue(
+        isMarketOpened((datetime) "2020-04-07 9:45")
+    );
+
     unitTest.assertFalse(
-        isMarketOpened((datetime) "2020-04.07 12:50")
+        isMarketOpened((datetime) "2020-04-07 9:55")
+    );
+
+    unitTest.assertFalse(
+        isMarketOpened((datetime) "2020-04-07 10:50")
     );
 
     unitTest.assertTrue(
-        isMarketOpened((datetime) "2020-04.07 11:45")
+        isMarketOpened((datetime) "2020-04-07 11:55")
     );
 
     unitTest.assertFalse(
-        isMarketOpened((datetime) "2020-04.07 11:55")
-    );
-
-    unitTest.assertTrue(
-        isMarketOpened((datetime) "2020-04.07 13:55")
-    );
-
-    unitTest.assertFalse(
-        isMarketOpened((datetime) "2020-04.07 13:45")
+        isMarketOpened((datetime) "2020-04-07 11:45")
     );
 
     ObjectsDeleteAll();

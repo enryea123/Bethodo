@@ -15,6 +15,8 @@ class NewsParseTest: public NewsParse {
         void readNewsFromCalendarTest();
         void parseDateTest();
 
+    private:
+        int getShiftCorrection();
 };
 
 NewsParseTest::NewsParseTest() {
@@ -51,7 +53,7 @@ void NewsParseTest::readNewsFromCalendarTest() {
     testNews.title = "Invented stuff 1";
     testNews.country = "EUR";
     testNews.impact = "High";
-    testNews.date = (datetime) "2020.12.30 10:00";
+    testNews.date = (datetime) "2020.12.30 10:00" + getShiftCorrection();
 
     createTestCalendarFile();
     ArrayFree(news);
@@ -86,27 +88,27 @@ void NewsParseTest::parseDateTest() {
     UnitTest unitTest("parseDateTest");
 
     unitTest.assertEquals(
-        (datetime) "2020.12.27 22:34",
+        (datetime) "2020.12.27 22:34" + getShiftCorrection(),
         parseDate("12-27-2020", "9:34pm")
     );
 
     unitTest.assertEquals(
-        (datetime) "2020.12.27 10:12",
+        (datetime) "2020.12.27 10:12" + getShiftCorrection(),
         parseDate("12-27-2020", "9:12am")
     );
 
     unitTest.assertEquals(
-        (datetime) "2020.12.27 01:00",
+        (datetime) "2020.12.27 01:00" + getShiftCorrection(),
         parseDate("12-27-2020", "12:00am")
     );
 
     unitTest.assertEquals(
-        (datetime) "2020.12.27 13:10",
+        (datetime) "2020.12.27 13:10" + getShiftCorrection(),
         parseDate("12-27-2020", "12:10pm")
     );
 
     unitTest.assertEquals(
-        (datetime) "2020.12.27 00:30",
+        (datetime) "2020.12.27 00:30" + getShiftCorrection(),
         parseDate("12-26-2020", "11:30pm")
     );
 
@@ -116,27 +118,27 @@ void NewsParseTest::parseDateTest() {
     );
 
     unitTest.assertEquals(
-        (datetime) "2020.12.27 23:00",
+        (datetime) "2020.12.27 23:00" + getShiftCorrection(),
         parseDate("12-27-2020", "22:00am")
     );
 
     unitTest.assertEquals(
-        (datetime) "2020.12.27 11:00",
+        (datetime) "2020.12.27 11:00" + getShiftCorrection(),
         parseDate("12-27-2020", "10:00")
     );
 
     unitTest.assertEquals(
-        (datetime) "2020.12.27 15:59:00",
+        (datetime) "2020.12.27 15:59:00" + getShiftCorrection(),
         parseDate("12-27-2020", "2:99pm")
     );
 
     unitTest.assertEquals(
-        (datetime) "2020.12.27 12:00",
+        (datetime) "2020.12.27 12:00" + getShiftCorrection(),
         parseDate("12-27-2020", "-11:00am")
     );
 
     unitTest.assertEquals(
-        (datetime) "2020.12.28",
+        (datetime) "2020.12.28" + getShiftCorrection(),
         parseDate("12-27-2020", "-11:00pm")
     );
 
@@ -159,4 +161,12 @@ void NewsParseTest::parseDateTest() {
         (datetime) 0,
         parseDate("12-27--0", "9:00am")
     );
+}
+
+/**
+ * Needed because the UTC time shift inside parseDate is calculated with timeItaly
+ */
+int NewsParseTest::getShiftCorrection() {
+    MarketTime marketTime;
+    return (marketTime.timeShiftInHours(marketTime.timeItaly(), TimeGMT()) == 2) ? 3600 : 0;
 }

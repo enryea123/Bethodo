@@ -77,7 +77,7 @@ void UnitTestsRunner::runAllUnitTests() {
     OrderCreateTest orderCreateTest;
     orderCreateTest.areThereRecentOrdersTest();
     orderCreateTest.areThereBetterOrdersTest();
-    orderCreateTest.calculateOrderOpenPriceFromSetupsTest();
+    orderCreateTest.findOrderChannelSetupTest();
     orderCreateTest.calculateOrderLotsTest();
 
     OrderTest orderTest;
@@ -85,7 +85,7 @@ void UnitTestsRunner::runAllUnitTests() {
     orderTest.getPeriodTest();
     orderTest.getStopLossPipsTest();
     orderTest.buildCommentTest();
-    orderTest.getSizeFactorFromCommentTest();
+    orderTest.getVolatilityFromCommentTest();
     orderTest.isOpenTest();
     orderTest.isBuySellTest();
     orderTest.getDiscriminatorTest();
@@ -97,6 +97,7 @@ void UnitTestsRunner::runAllUnitTests() {
     OrderManageTest orderManageTest;
     orderManageTest.areThereOpenOrdersTest();
     orderManageTest.areThereOrdersThisSymbolThisPeriodTest();
+    orderManageTest.areTherePendingOrdersThisSymbolThisPeriodTest();
     orderManageTest.findBestOrderTest();
     orderManageTest.deduplicateOrdersTest();
     orderManageTest.emergencySwitchOffTest();
@@ -106,6 +107,9 @@ void UnitTestsRunner::runAllUnitTests() {
 
     OrderTrailTest orderTrailTest;
     orderTrailTest.calculateBreakEvenStopLossTest();
+    orderTrailTest.calculateTrailingStopLossTest();
+    orderTrailTest.getPreviousExtremeTest();
+    orderTrailTest.closeOrderForTrailingProfitTest();
 
     TrendLineTest trendLineTest;
     trendLineTest.isGoodTrendLineFromNameTest();

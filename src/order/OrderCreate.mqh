@@ -20,18 +20,19 @@ class OrderCreate {
 
         bool areThereRecentOrders(datetime);
         bool areThereBetterOrders(Order &);
-
         string findOrderChannelSetup(int);
-        double calculateOrderOpenPriceFromSetups(int, string);
-        int calculateOrderTypeFromOpenPrice(double);
         double calculateOrderLots(int, string);
-        double getPercentRisk();
 
     protected:
         OrderFind orderFind_;
 
         void createNewOrder(int);
         void sendOrder(Order &);
+
+    private:
+        int calculateOrderTypeFromOpenPrice(double);
+        double calculateOrderOpenPriceFromSetups(int, string);
+        double getPercentRisk();
 };
 
 /**
@@ -320,6 +321,13 @@ bool OrderCreate::areThereBetterOrders(Order & newOrder) {
  * so that the position can be later split.
  */
 double OrderCreate::calculateOrderLots(int stopLossPips, string symbol) {
+    if (stopLossPips <= 0) {
+        return ThrowException(-1, __FUNCTION__, StringConcatenate("Incorrect stopLossPips: ", stopLossPips));
+    }
+    if (!SymbolExists(symbol)) {
+        return ThrowException(-1, __FUNCTION__, StringConcatenate("Unknown symbol: ", symbol));
+    }
+
     const double absoluteRisk = getPercentRisk() * AccountEquity() / MarketInfo(symbol, MODE_TICKVALUE);
     const int stopLossTicks = stopLossPips * 10;
 
