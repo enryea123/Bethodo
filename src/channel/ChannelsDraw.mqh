@@ -80,13 +80,12 @@ void ChannelsDraw::drawChannels() {
                 const int secondTrendLineMinIndex = trendLine.getTrendLineMinIndex(secondTrendLineName);
                 const double maxWickSize = AverageTrueRange() * STOPLOSS_ATR_PERCENTAGE * Pip();
 
-                if (firstTrendLineSlope > 0) {
+                if (firstTrendLineSlope >= 0) {
                     if (candle.candleUpShadow(firstTrendLineMinIndex) > maxWickSize ||
                         firstTrendLineMinIndex < CHANNEL_MIN_OPPOSITE_CONTACT_POINT) {
                         continue;
                     }
-                }
-                if (firstTrendLineSlope < 0 && candle.candleDownShadow(secondTrendLineMinIndex) > maxWickSize) {
+                } else {
                     if (candle.candleDownShadow(secondTrendLineMinIndex) > maxWickSize ||
                         secondTrendLineMinIndex < CHANNEL_MIN_OPPOSITE_CONTACT_POINT) {
                         continue;
