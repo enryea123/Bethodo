@@ -28,11 +28,11 @@ const datetime BOT_EXPIRATION_DATE = (datetime) "2021-06-30";
 // TimeZone Milano
 const int MARKET_OPEN_HOUR_1 = 0;
 const int MARKET_OPEN_HOUR_2 = 8;
-const int MARKET_CLOSE_HOUR_1 = 1;
+const int MARKET_CLOSE_HOUR_1 = 2;
 const int MARKET_CLOSE_HOUR_2 = 13;
-const int MARKET_CLOSE_MINUTE = 5;
+const int MARKET_CLOSE_MINUTE = 0;
 
-const int MARKET_WEEK_CLOSE_HOUR = 14;
+const int MARKET_WEEK_CLOSE_HOUR = 13;
 const int MARKET_WEEK_CLOSE_DAY = 5;
 
 const int BASE_MAGIC_NUMBER = 837000;
@@ -134,13 +134,15 @@ const int ATR_AVERAGE_CANDLES = 240;
 const int ORDER_SETUP_BUFFER_PIPS = 3;
 const int ORDER_ENTER_BUFFER_PIPS = 12;
 
-const int ORDER_CANDLES_DURATION = 1;
+const int ORDER_CANDLES_DURATION = 4;
 const int MAX_ORDER_COMMENT_CHARACTERS = 20;
 
 const int CANDLES_BETWEEN_ORDERS = 12;
 
 const int COMMISSION_SAVER_PIPS = 1;
 const int TRAILING_BUFFER_PIPS = 2;
+
+const int BEST_ORDER_VOLATILITY_BUFFER = 5;
 
 const string STRATEGY_PREFIX = "B";
 const string PERIOD_COMMENT_IDENTIFIER = "P";
@@ -207,6 +209,8 @@ datetime WRONG_CLOCK_TIMESTAMP = -1;
 
 datetime SETUP_TIMESTAMP = -1;
 datetime NO_SETUP_TIMESTAMP = -1;
+
+datetime DEDUPLICATE_ORDER_TIMESTAMP = -1;
 
 datetime PRICE_GAP_TIMESTAMP = -1;
 datetime VOLATILITY_TIMESTAMP = -1;

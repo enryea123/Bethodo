@@ -62,39 +62,52 @@ void OrderTrailTest::calculateTrailingStopLossTest() {
     order.openPrice = currentPrice - 0.6 * order.getStopLossPips() * Pip(order.symbol);
     order.stopLoss = order.openPrice - order.getStopLossPips() * Pip(order.symbol);
 
+    double expected = order.stopLoss;
+
     unitTest.assertEquals(
-        order.stopLoss,
+        expected,
         calculateTrailingStopLoss(order)
     );
 
     order.openPrice = currentPrice - 2.6 * order.getStopLossPips() * Pip(order.symbol);
     order.stopLoss = order.openPrice - order.getStopLossPips() * Pip(order.symbol);
 
+    expected = order.stopLoss;
+
     unitTest.assertEquals(
-        order.stopLoss,
+        expected,
         calculateTrailingStopLoss(order)
     );
 
     order.stopLoss = order.openPrice;
 
+    expected = MathMax(order.stopLoss, getPreviousExtreme(Min, TRAILING_STEPS.get(2)) -
+        TRAILING_BUFFER_PIPS * Pip(order.symbol));
+
     unitTest.assertEquals(
-        getPreviousExtreme(Min, TRAILING_STEPS.get(2)) - TRAILING_BUFFER_PIPS * Pip(order.symbol),
+        expected,
         calculateTrailingStopLoss(order)
     );
 
     order.openPrice = currentPrice - 3.2 * order.getStopLossPips() * Pip(order.symbol);
     order.stopLoss = order.openPrice;
 
+    expected = MathMax(order.stopLoss, getPreviousExtreme(Min, TRAILING_STEPS.get(3)) -
+        TRAILING_BUFFER_PIPS * Pip(order.symbol));
+
     unitTest.assertEquals(
-        getPreviousExtreme(Min, TRAILING_STEPS.get(3)) - TRAILING_BUFFER_PIPS * Pip(order.symbol),
+        expected,
         calculateTrailingStopLoss(order)
     );
 
     order.openPrice = currentPrice - 9.0 * order.getStopLossPips() * Pip(order.symbol);
     order.stopLoss = order.openPrice;
 
+    expected = MathMax(order.stopLoss, getPreviousExtreme(Min, TRAILING_STEPS.get(4)) -
+        TRAILING_BUFFER_PIPS * Pip(order.symbol));
+
     unitTest.assertEquals(
-        getPreviousExtreme(Min, TRAILING_STEPS.get(4)) - TRAILING_BUFFER_PIPS * Pip(order.symbol),
+        expected,
         calculateTrailingStopLoss(order)
     );
 
@@ -102,8 +115,11 @@ void OrderTrailTest::calculateTrailingStopLossTest() {
     order.openPrice = currentPrice + 4.3 * order.getStopLossPips() * Pip(order.symbol);
     order.stopLoss = order.openPrice;
 
+    expected = MathMin(order.stopLoss, getPreviousExtreme(Max, TRAILING_STEPS.get(4)) +
+        TRAILING_BUFFER_PIPS * Pip(order.symbol));
+
     unitTest.assertEquals(
-        getPreviousExtreme(Max, TRAILING_STEPS.get(4)) + TRAILING_BUFFER_PIPS * Pip(order.symbol),
+        expected,
         calculateTrailingStopLoss(order)
     );
 }

@@ -3,7 +3,7 @@
 #property strict
 
 #property description "Enrico Albano's automated bot for Bethodo"
-#property version "210.419"
+#property version "210.420"
 
 #include "src/drawer/Drawer.mqh"
 #include "src/market/Market.mqh"
@@ -104,9 +104,13 @@ void OnTick() {
         }
     }
 
-    if (market.isMarketOpened() && !orderManage.areThereOpenOrders()) {
-        OrderCreate orderCreate;
-        orderCreate.newOrder();
+    if (market.isMarketOpened()) {
+        if (!orderManage.areThereOpenOrders()) {
+            OrderCreate orderCreate;
+            orderCreate.newOrder();
+        }
+    } else {
+        orderManage.deletePendingOrders();
     }
 
     orderManage.emergencySwitchOff();

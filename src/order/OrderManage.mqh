@@ -123,6 +123,8 @@ void OrderManage::deduplicateDiscriminatedOrders(Discriminator discriminator) {
             }
         }
 
+        DEDUPLICATE_ORDER_TIMESTAMP = PrintTimer(DEDUPLICATE_ORDER_TIMESTAMP, "Deduplicating orders..");
+
         ArrayRemove(orders, bestOrderIndex);
         deleteOrdersFromList(orders);
     }
@@ -218,7 +220,7 @@ bool OrderManage::findBestOrder(Order & order1, Order & order2) {
         return false;
     }
 
-    if (order1.getVolatilityFromComment() >= order2.getVolatilityFromComment()) {
+    if (order1.getVolatilityFromComment() + BEST_ORDER_VOLATILITY_BUFFER > order2.getVolatilityFromComment()) {
         return true;
     }
 
