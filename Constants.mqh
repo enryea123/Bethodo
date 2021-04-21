@@ -29,7 +29,7 @@ const datetime BOT_EXPIRATION_DATE = (datetime) "2021-06-30";
 const int MARKET_OPEN_HOUR_1 = 0;
 const int MARKET_OPEN_HOUR_2 = 8;
 const int MARKET_CLOSE_HOUR_1 = 2;
-const int MARKET_CLOSE_HOUR_2 = 13;
+const int MARKET_CLOSE_HOUR_2 = 12;
 const int MARKET_CLOSE_MINUTE = 0;
 
 const int MARKET_WEEK_CLOSE_HOUR = 13;
@@ -132,7 +132,7 @@ const double BREAKEVEN_PERCENTAGE = 1;
 const int ATR_AVERAGE_CANDLES = 240;
 
 const int ORDER_SETUP_BUFFER_PIPS = 3;
-const int ORDER_ENTER_BUFFER_PIPS = 12;
+const int ORDER_ENTER_BUFFER_PIPS = 8;
 
 const int ORDER_CANDLES_DURATION = 4;
 const int MAX_ORDER_COMMENT_CHARACTERS = 20;
