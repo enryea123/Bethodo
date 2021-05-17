@@ -174,6 +174,7 @@ void OrderCreateTest::areThereBetterOrdersTest() {
 void OrderCreateTest::findOrderChannelSetupTest() {
     UnitTest unitTest("findOrderChannelSetupTest");
 
+    LevelsDraw levelsDraw;
     TrendLine trendLine;
 
     unitTest.assertEquals(
@@ -195,13 +196,32 @@ void OrderCreateTest::findOrderChannelSetupTest() {
     ObjectSet(trendLineName, OBJPROP_WIDTH, CHANNEL_LINE_WIDTH);
 
     unitTest.assertEquals(
+        "",
+        findOrderChannelSetup(0)
+    );
+
+    string levelName = levelsDraw.buildLevelLineName(20, Max);
+    ObjectCreate(levelName, OBJ_TREND, 0, Time[50], currentMarketValue - 20 * Pip(),
+        Time[0], currentMarketValue - 20 * Pip());
+
+    unitTest.assertEquals(
+        "",
+        findOrderChannelSetup(0)
+    );
+
+    ObjectDelete(levelName);
+    ObjectCreate(levelName, OBJ_TREND, 0, Time[50], currentMarketValue, Time[0], currentMarketValue);
+
+    unitTest.assertEquals(
         trendLineName,
         findOrderChannelSetup(0)
     );
 
     ObjectDelete(trendLineName);
+    ObjectDelete(levelName);
     ObjectCreate(trendLineName, OBJ_TREND, 0, Time[50], currentMarketValue + 20 * Pip(),
         Time[0], currentMarketValue + 20 * Pip());
+    ObjectCreate(levelName, OBJ_TREND, 0, Time[50], currentMarketValue, Time[0], currentMarketValue);
     ObjectSet(trendLineName, OBJPROP_COLOR, CHANNEL_COLOR);
     ObjectSet(trendLineName, OBJPROP_WIDTH, CHANNEL_LINE_WIDTH);
 
@@ -211,8 +231,10 @@ void OrderCreateTest::findOrderChannelSetupTest() {
     );
 
     ObjectDelete(trendLineName);
+    ObjectDelete(levelName);
     ObjectCreate(trendLineName, OBJ_TREND, 0, Time[50], currentMarketValue + 20 * Pip(),
         Time[0], currentMarketValue);
+    ObjectCreate(levelName, OBJ_TREND, 0, Time[50], currentMarketValue, Time[0], currentMarketValue);
     ObjectSet(trendLineName, OBJPROP_COLOR, CHANNEL_COLOR);
     ObjectSet(trendLineName, OBJPROP_WIDTH, CHANNEL_LINE_WIDTH);
 
@@ -222,8 +244,24 @@ void OrderCreateTest::findOrderChannelSetupTest() {
     );
 
     ObjectDelete(trendLineName);
+    ObjectDelete(levelName);
     ObjectCreate(trendLineName, OBJ_TREND, 0, Time[50], currentMarketValue - 20 * Pip(),
         Time[0], currentMarketValue);
+    ObjectCreate(levelName, OBJ_TREND, 0, Time[50], currentMarketValue, Time[0], currentMarketValue);
+    ObjectSet(trendLineName, OBJPROP_COLOR, CHANNEL_COLOR);
+    ObjectSet(trendLineName, OBJPROP_WIDTH, CHANNEL_LINE_WIDTH);
+
+    unitTest.assertEquals(
+        "",
+        findOrderChannelSetup(0)
+    );
+
+    ObjectDelete(trendLineName);
+    ObjectDelete(levelName);
+    ObjectCreate(trendLineName, OBJ_TREND, 0, Time[50], currentMarketValue + 20 * Pip(),
+        Time[0], currentMarketValue);
+    levelName = levelsDraw.buildLevelLineName(20, Min);
+    ObjectCreate(levelName, OBJ_TREND, 0, Time[50], currentMarketValue, Time[0], currentMarketValue);
     ObjectSet(trendLineName, OBJPROP_COLOR, CHANNEL_COLOR);
     ObjectSet(trendLineName, OBJPROP_WIDTH, CHANNEL_LINE_WIDTH);
 

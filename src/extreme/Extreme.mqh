@@ -66,6 +66,10 @@ void Extreme::calculateValidExtremes(int & validExtremes[], Discriminator discri
         bool isValidExtreme = true;
         const int indexI = allExtremes[i];
 
+        if (indexI < LEVELS_TRANSPARENT_CANDLES) {
+            isValidExtreme = false;
+        }
+
         for (int j = lastFoundValidExtremeIndex; j < indexI; j++) {
             if ((discriminator == Min && iExtreme(discriminator, indexI) >
                 iExtreme(discriminator, j) + LEVELS_TOLERANCE_PIPS * Pip()) ||

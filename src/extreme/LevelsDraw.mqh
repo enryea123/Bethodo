@@ -16,6 +16,7 @@ class LevelsDraw {
         void drawValidLevels();
 
         bool isLevelFromName(string);
+        string buildLevelLineName(int, Discriminator);
         Discriminator getLevelDiscriminator(string);
 
     private:
@@ -23,7 +24,6 @@ class LevelsDraw {
         void drawDiscriminatedValidLevels(Discriminator);
 
         void drawSingleLevelLine(int, Discriminator);
-        string buildLevelLineName(int, Discriminator);
 };
 
 /**
@@ -41,7 +41,7 @@ void LevelsDraw::drawDiscriminatedAllLevels(Discriminator discriminator) {
     Extreme extreme;
     int allLevels[];
 
-    extreme.calculateAllExtremes(allLevels, discriminator,LEVELS_MIN_DISTANCE);
+    extreme.calculateAllExtremes(allLevels, discriminator, LEVELS_MIN_DISTANCE);
 
     for (int i = 0; i < ArraySize(allLevels); i++) {
         drawSingleLevelLine(allLevels[i], discriminator);

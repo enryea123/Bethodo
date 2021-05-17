@@ -165,6 +165,7 @@ string OrderCreate::findOrderChannelSetup(int index) {
     const string symbol = Symbol();
 
     ChannelsDraw channelsDraw;
+    LevelsDraw levelsDraw;
 
     double previousChannelDistance = 100000;
     string channelSetupName = "";
@@ -188,7 +189,28 @@ string OrderCreate::findOrderChannelSetup(int index) {
             (channelsDraw.getChannelDiscriminator(channelName) == Min &&
             channelsDraw.getChannelSlope(channelName) >= 0)) {
 
-            if (channelSetupDistance < previousChannelDistance) {
+            if (channelSetupDistance > previousChannelDistance) {
+                continue;
+            }
+
+            for (int j = ObjectsTotal() - 1; j >= 0; j--) {
+                const string levelName = ObjectName(j);
+
+                if (!levelsDraw.isLevelFromName(levelName)) {
+                    continue;
+                }
+
+                if (levelsDraw.getLevelDiscriminator(levelName) != channelsDraw.getChannelDiscriminator(channelName)) {
+                    continue;
+                }
+
+                const double levelSetupValue = ObjectGetValueByShift(levelName, index);
+                const double levelSetupDistance = MathAbs(channelSetupValue - levelSetupValue);
+
+                if (levelSetupDistance > LEVEL_SETUP_BUFFER_PIPS * Pip()) {
+                    continue;
+                }
+
                 previousChannelDistance = channelSetupDistance;
                 channelSetupName = channelName;
             }

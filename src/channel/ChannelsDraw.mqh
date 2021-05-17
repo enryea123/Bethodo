@@ -13,8 +13,9 @@
 class ChannelsDraw {
     public:
         void drawChannels();
-        bool isChannel(string);
 
+        bool isChannel(string);
+        bool ascendingCandlesPattern(int, Discriminator);
         double getChannelSlope(string);
         Discriminator getChannelDiscriminator(string);
 };
@@ -78,18 +79,19 @@ void ChannelsDraw::drawChannels() {
 
                 const int firstTrendLineMinIndex = trendLine.getTrendLineMinIndex(firstTrendLineName);
                 const int secondTrendLineMinIndex = trendLine.getTrendLineMinIndex(secondTrendLineName);
+                const int thirdContactPoint = (firstTrendLineSlope >= 0) ?
+                    firstTrendLineMinIndex : secondTrendLineMinIndex;
+
                 const double maxWickSize = AverageTrueRange() * STOPLOSS_ATR_PERCENTAGE * Pip();
 
-                if (firstTrendLineSlope >= 0) {
-                    if (candle.candleUpShadow(firstTrendLineMinIndex) > maxWickSize ||
-                        firstTrendLineMinIndex < CHANNEL_MIN_OPPOSITE_CONTACT_POINT) {
-                        continue;
-                    }
-                } else {
-                    if (candle.candleDownShadow(secondTrendLineMinIndex) > maxWickSize ||
-                        secondTrendLineMinIndex < CHANNEL_MIN_OPPOSITE_CONTACT_POINT) {
-                        continue;
-                    }
+                if (candle.candleUpShadow(thirdContactPoint) > maxWickSize ||
+                    thirdContactPoint < CHANNEL_MIN_OPPOSITE_CONTACT_POINT) {
+                    continue;
+                }
+
+                const Discriminator discriminator = (firstTrendLineSlope >= 0) ? Max : Min;
+                if (!ascendingCandlesPattern(thirdContactPoint, discriminator)) {
+                    continue;
                 }
 
                 ObjectSet(firstTrendLineName, OBJPROP_COLOR, CHANNEL_COLOR);
@@ -109,6 +111,27 @@ void ChannelsDraw::drawChannels() {
             }
         }
     }
+}
+
+/**
+ * Checks if there is a pattern of 3 ascending candles near the contact point.
+ */
+bool ChannelsDraw::ascendingCandlesPattern(int contactPoint, Discriminator discriminator) {
+    for (int i = -1; i < 2; i++) {
+        if (discriminator == Max) {
+            if (iExtreme(discriminator, contactPoint + i) > iExtreme(discriminator, contactPoint + i + 1) &&
+                iExtreme(discriminator, contactPoint + i + 1) > iExtreme(discriminator, contactPoint + i + 2)) {
+                return true;
+            }
+        } else {
+            if (iExtreme(discriminator, contactPoint + i) < iExtreme(discriminator, contactPoint + i + 1) &&
+                iExtreme(discriminator, contactPoint + i + 1) < iExtreme(discriminator, contactPoint + i + 2)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 /**
