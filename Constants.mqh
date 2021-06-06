@@ -67,7 +67,8 @@ const int HISTORY_DOWNLOAD_PERIODS [] = {
 
 const string ALLOWED_BROKERS [] = {
     "KEY TO MARKETS NZ Limited",
-    "KEY TO MARKETS NZ LIMITED"
+    "KEY TO MARKETS NZ LIMITED",
+    "Key to Markets Group Ltd"
 };
 
 const string ALLOWED_SYMBOLS [] = {
